@@ -1,14 +1,11 @@
-from src.core.menu import Menu
+from src.core.application import Application
 
 
 def main():
 
-    menu = Menu()
+    app = Application()
 
-    choice = menu.show_main_menu()
-
-    print()
-    print(f"Wybrano opcję: {choice}")
+    app.run()
 
 
 if __name__ == "__main__":
