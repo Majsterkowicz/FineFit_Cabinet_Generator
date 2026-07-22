@@ -12,5 +12,15 @@ class Project:
     sections: list = field(default_factory=list)
 
     def to_dict(self):
-        """Zwraca projekt jako słownik."""
+        """Konwersja obiektu Project do słownika."""
         return asdict(self)
+
+    @classmethod
+    def from_dict(cls, data: dict):
+        """Tworzy obiekt Project ze słownika."""
+        return cls(
+            project_id=data["project_id"],
+            project_name=data["project_name"],
+            created_at=data["created_at"],
+            sections=data.get("sections", [])
+        )

@@ -59,3 +59,22 @@ class ProjectManager:
             )
 
         return project
+
+    def list_projects(self):
+
+        projects = sorted(
+            folder
+            for folder in self.projects_path.iterdir()
+            if folder.is_dir()
+        )
+
+        return projects
+
+    def load_project(self, project_folder):
+
+        json_path = project_folder / "project.json"
+
+        with open(json_path, "r", encoding="utf-8") as file:
+            data = json.load(file)
+
+        return Project.from_dict(data)
