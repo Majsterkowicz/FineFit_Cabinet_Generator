@@ -26,3 +26,26 @@ class ProjectWorkspace:
         print("=" * 42)
 
         return input("Twój wybór: ")
+
+    def run(self):
+
+       while True:
+
+        choice = self.show()
+
+        print()
+
+        if choice == "1":
+            print("Informacje o projekcie - funkcja w przygotowaniu.")
+
+        elif choice == "2":
+            print("Dodawanie sekcji - funkcja w przygotowaniu.")
+
+        elif choice == "0":
+            print("Zamykanie projektu...")
+            break
+
+        else:
+            print("Nieprawidłowa opcja.")
+
+        input("\nNaciśnij Enter, aby kontynuować...")

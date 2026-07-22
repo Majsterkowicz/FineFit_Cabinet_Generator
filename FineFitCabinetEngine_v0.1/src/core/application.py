@@ -1,5 +1,6 @@
 from src.core.main_menu import MainMenu
 from src.services.project_manager import ProjectManager
+from src.core.project_workspace import ProjectWorkspace
 
 
 class Application:
@@ -26,6 +27,9 @@ class Application:
         print()
         print(f"ID projektu: {self.current_project.project_id}")
         print(f"Nazwa projektu: {self.current_project.project_name}")
+
+        workspace = ProjectWorkspace(self.current_project)
+        workspace.run()
 
     def run(self):
 
