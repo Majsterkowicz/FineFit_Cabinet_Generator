@@ -7,7 +7,7 @@ from src.models.cabinet import Cabinet
 class Section:
 
     section_id: str
-    section_number: str
+    section_number: int
     section_name: str
 
     cabinets: list[Cabinet] = field(default_factory=list)
@@ -20,7 +20,7 @@ class Section:
 
         section_name = data.get("section_name", data.get("name"))
         section_id = data.get("section_id", "")
-        section_number = data.get("section_number", "")
+        section_number = int(data.get("section_number") or 0)
 
         return cls(
             section_id=section_id,

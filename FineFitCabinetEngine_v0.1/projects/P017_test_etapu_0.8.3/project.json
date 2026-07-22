@@ -8,6 +8,18 @@
             "section_number": "1",
             "section_name": "Sekcja",
             "cabinets": []
+        },
+        {
+            "section_id": "P017-S002",
+            "section_number": "1",
+            "section_name": "Sekcja",
+            "cabinets": []
+        },
+        {
+            "section_id": "P017-S003",
+            "section_number": "2",
+            "section_name": "Ściana",
+            "cabinets": []
         }
     ]
 }

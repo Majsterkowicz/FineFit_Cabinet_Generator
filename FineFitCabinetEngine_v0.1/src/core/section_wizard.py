@@ -16,14 +16,26 @@ class SectionWizard:
 
         print()
 
-        section_number = input(
-            "Podaj numer sekcji: "
-        ).strip()
-
-        if not section_number:
-
-            print("\nNumer sekcji nie może być pusty.")
-            return None
+        if self.project.sections:
+            print("Istniejące sekcje:\n")
+            for section in sorted(
+                self.project.sections,
+                key=lambda s: s.section_number
+            ):
+                print(
+                    f"{section.section_number}. "
+                    f"{section.section_name}"
+                )
+        else:
+            print("Projekt nie zawiera jeszcze sekcji.")
+        print()
+        print("-" * 42)
+        print()
+        section_number = IdGenerator.generate_section_number(
+            self.project
+        )
+        print(f"Tworzona sekcja nr: {section_number}")
+        print()
 
         section_name = input(
             "Podaj nazwę sekcji: "
@@ -38,20 +50,26 @@ class SectionWizard:
         print("=" * 42)
         print(" Podsumowanie")
         print("=" * 42)
-
-        print(f"Numer : {section_number}")
-        print(f"Nazwa : {section_name}")
-
+        print()
+        print(f"Numer sekcji : {section_number}")
+        print(f"Nazwa         : {section_name}")
+        print()
+        print("=" * 42)
         print()
 
-        confirm = input(
-            "Zapisać sekcję? (t/n): "
-        ).lower()
+        while True:
+            confirm = input(
+                "ENTER - zapisz | N - anuluj: "
+            ).lower()
 
-        if confirm != "t":
+            if confirm == "":
+                break
 
-            print("\nAnulowano.")
-            return None
+            if confirm == "n":
+                print("\nDodawanie sekcji anulowano.")
+                return None
+
+            print("\nNieprawidłowy wybór. Naciśnij ENTER lub wpisz N.")
 
         return IdGenerator.create_section(
             project=self.project,

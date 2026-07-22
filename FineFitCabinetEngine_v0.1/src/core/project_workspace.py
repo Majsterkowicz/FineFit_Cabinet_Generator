@@ -76,9 +76,15 @@ class ProjectWorkspace:
             self.project
         )
         print()
-        print(
-            f'Sekcja "{section.section_name}" została dodana.'
-        )
+        print("=" * 42)
+        print(" Sekcja została dodana")
+        print("=" * 42)
+        print()
+        print(f"ID systemowe : {section.section_id}")
+        print(f"Numer sekcji : {section.section_number}")
+        print(f"Nazwa        : {section.section_name}")
+        print()
+        print("=" * 42)
 
     def list_sections(self):
         print()

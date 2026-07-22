@@ -4,13 +4,28 @@
     "created_at": "2026-07-22 13:03:52",
     "sections": [
         {
-            "name": "Sciana 1"
+            "section_id": "",
+            "section_number": "",
+            "section_name": "Sciana 1",
+            "cabinets": []
         },
         {
-            "name": "Sciana 2"
+            "section_id": "",
+            "section_number": "",
+            "section_name": "Sciana 2",
+            "cabinets": []
         },
         {
-            "name": "Okno"
+            "section_id": "",
+            "section_number": "",
+            "section_name": "Okno",
+            "cabinets": []
+        },
+        {
+            "section_id": "P012-S001",
+            "section_number": "5",
+            "section_name": "Okno balkonowe",
+            "cabinets": []
         }
     ]
 }
