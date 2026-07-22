@@ -25,7 +25,7 @@ class Project:
             project_name=data["project_name"],
             created_at=data["created_at"],
             sections=[
-                Section(**section)
+                Section.from_dict(section)
                 for section in data.get("sections", [])
             ]
         )

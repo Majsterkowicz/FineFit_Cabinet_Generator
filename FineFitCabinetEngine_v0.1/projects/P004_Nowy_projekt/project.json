@@ -2,5 +2,10 @@
     "project_id": "P004",
     "project_name": "Nowy projekt",
     "created_at": "2026-07-22 10:44:00",
-    "sections": []
+    "sections": [
+        {
+            "section_name": "Sekcja 1",
+            "cabinets": []
+        }
+    ]
 }

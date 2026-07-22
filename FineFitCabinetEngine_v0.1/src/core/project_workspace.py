@@ -58,7 +58,7 @@ class ProjectWorkspace:
                 if not section_name:
                     print("Nazwa sekcji nie może być pusta.")
                 else:
-                    section = Section(name=section_name)
+                    section = Section(section_name=section_name)
                     self.project.add_section(section)
                     self.project_manager.save_project(self.project)
                     print(f'Sekcja "{section_name}" została dodana.')
@@ -71,7 +71,7 @@ class ProjectWorkspace:
                     for index, section in enumerate(
                             self.project.sections,
                             start=1):
-                        print(f"{index}. {section.name}")
+                        print(f"{index}. {section.section_name}")
             elif choice == "3":
                 print("Usuwanie sekcji - funkcja w przygotowaniu.")
             elif choice == "4":
