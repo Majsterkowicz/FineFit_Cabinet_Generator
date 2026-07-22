@@ -6,6 +6,8 @@ from src.models.cabinet import Cabinet
 @dataclass
 class Section:
 
+    section_id: str
+    section_number: str
     section_name: str
 
     cabinets: list = field(default_factory=list)
@@ -17,8 +19,12 @@ class Section:
     def from_dict(cls, data):
 
         section_name = data.get("section_name", data.get("name"))
+        section_id = data.get("section_id", "")
+        section_number = data.get("section_number", "")
 
         return cls(
+            section_id=section_id,
+            section_number=section_number,
             section_name=section_name,
             cabinets=[
                 Cabinet.from_dict(cabinet)
