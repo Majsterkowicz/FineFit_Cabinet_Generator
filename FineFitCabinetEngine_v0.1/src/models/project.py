@@ -1,6 +1,8 @@
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 
+from src.models.section import Section
+
 
 @dataclass
 class Project:
@@ -22,5 +24,11 @@ class Project:
             project_id=data["project_id"],
             project_name=data["project_name"],
             created_at=data["created_at"],
-            sections=data.get("sections", [])
+            sections=[
+                Section(**section)
+                for section in data.get("sections", [])
+            ]
         )
+    def add_section(self, section):
+        """Dodaje sekcję do projektu."""
+        self.sections.append(section)

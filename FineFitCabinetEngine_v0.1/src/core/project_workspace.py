@@ -1,7 +1,10 @@
+from src.models.section import Section
+
 class ProjectWorkspace:
 
-    def __init__(self, project):
+    def __init__(self, project, project_manager):
         self.project = project
+        self.project_manager = project_manager
 
     def show(self):
 
@@ -39,7 +42,19 @@ class ProjectWorkspace:
             print("Informacje o projekcie - funkcja w przygotowaniu.")
 
         elif choice == "2":
-            print("Dodawanie sekcji - funkcja w przygotowaniu.")
+
+            print("\n=== Dodawanie sekcji ===\n")
+
+            section_name = input("Podaj nazwę sekcji: ").strip()
+
+            if not section_name:
+                print("Nazwa sekcji nie może być pusta.")
+
+            else:
+                section = Section(name=section_name)
+                self.project.add_section(section)
+                self.project_manager.save_project(self.project)
+                print(f'Sekcja "{section_name}" została dodana i zapisana.')
 
         elif choice == "0":
             print("Zamykanie projektu...")

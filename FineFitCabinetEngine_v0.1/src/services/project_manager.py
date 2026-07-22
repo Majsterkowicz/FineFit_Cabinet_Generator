@@ -1,6 +1,9 @@
 from pathlib import Path
 import json
 
+from pathlib import Path
+import json
+
 from src.models.project import Project
 
 
@@ -48,16 +51,7 @@ class ProjectManager:
             project_name=project_name
         )
 
-        json_path = project_folder / "project.json"
-
-        with open(json_path, "w", encoding="utf-8") as file:
-            json.dump(
-                project.to_dict(),
-                file,
-                indent=4,
-                ensure_ascii=False
-            )
-
+        self.save_project(project)
         return project
 
     def list_projects(self):
@@ -78,3 +72,22 @@ class ProjectManager:
             data = json.load(file)
 
         return Project.from_dict(data)
+
+    def save_project(self, project: Project):
+        """Zapisuje projekt do pliku project.json."""
+
+        project_folder = next(
+            folder
+            for folder in self.projects_path.iterdir()
+            if folder.is_dir() and folder.name.startswith(project.project_id)
+        )
+
+        json_path = project_folder / "project.json"
+
+        with open(json_path, "w", encoding="utf-8") as file:
+            json.dump(
+                project.to_dict(),
+                file,
+                indent=4,
+                ensure_ascii=False
+            )

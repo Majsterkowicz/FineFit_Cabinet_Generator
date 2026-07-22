@@ -28,7 +28,10 @@ class Application:
         print(f"ID projektu: {self.current_project.project_id}")
         print(f"Nazwa projektu: {self.current_project.project_name}")
 
-        workspace = ProjectWorkspace(self.current_project)
+        workspace = ProjectWorkspace(
+        self.current_project,
+        self.project_manager
+        )       
         workspace.run()
 
     def run(self):
