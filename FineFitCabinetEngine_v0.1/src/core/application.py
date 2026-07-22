@@ -46,7 +46,7 @@ class Application:
                 self.create_project()
 
             elif choice == "2":
-                print("Otwieranie projektu...")
+                self.open_project()
 
             elif choice == "0":
                 print("Do widzenia!")
@@ -56,3 +56,58 @@ class Application:
                 print("Nieprawidłowa opcja.")
 
             input("\nNaciśnij Enter, aby kontynuować...")
+
+    def open_project(self):
+
+        projects = self.project_manager.get_project_names()
+
+        if not projects:
+            print("\nBrak zapisanych projektów.")
+            input("\nNaciśnij Enter...")
+            return
+
+        while True:
+
+            print()
+            print("=" * 42)
+            print(" Dostępne projekty")
+            print("=" * 42)
+            print()
+
+            for index, project in enumerate(projects, start=1):
+                print(f"{index}. {project.name}")
+
+            print()
+            print("0. Powrót")
+            print()
+
+            choice = input("Wybierz projekt: ").strip()
+
+            if choice == "0":
+                return
+
+            try:
+
+                index = int(choice) - 1
+
+                if index < 0 or index >= len(projects):
+                    raise IndexError
+
+            except (ValueError, IndexError):
+
+                print("\nNieprawidłowy wybór.")
+                input("\nNaciśnij Enter...")
+                continue
+
+            project_path = projects[index]
+
+            self.current_project = self.project_manager.load_project(project_path)
+
+            workspace = ProjectWorkspace(
+                self.current_project,
+                self.project_manager
+            )
+
+            workspace.run()
+
+            return

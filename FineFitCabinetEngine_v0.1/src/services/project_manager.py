@@ -9,6 +9,13 @@ from src.models.project import Project
 
 class ProjectManager:
 
+    def get_project_names(self):
+        """Zwraca listę folderów projektów posortowaną po nazwie."""
+
+        projects = self.list_projects()
+
+        return sorted(projects, key=lambda p: p.name)
+
     def __init__(self):
         self.projects_path = Path("projects")
         self.projects_path.mkdir(exist_ok=True)
