@@ -59,7 +59,7 @@ class Application:
 
     def open_project(self):
 
-        projects = self.project_manager.get_project_names()
+        projects = self.project_manager.list_projects()
 
         if not projects:
             print("\nBrak zapisanych projektów.")

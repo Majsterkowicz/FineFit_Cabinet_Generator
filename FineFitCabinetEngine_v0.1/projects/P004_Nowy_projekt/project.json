@@ -4,8 +4,285 @@
     "created_at": "2026-07-22 10:44:00",
     "sections": [
         {
+            "section_id": "",
+            "section_number": 1,
             "section_name": "Sekcja 1",
             "cabinets": []
+        },
+        {
+            "section_id": "P004-S001",
+            "section_number": 2,
+            "section_name": "kuchnia",
+            "cabinets": [
+                {
+                    "cabinet_id": "P004-C001",
+                    "cabinet_label": "2.1",
+                    "cabinet_type": "gorna",
+                    "width": 600,
+                    "height": 520,
+                    "depth": 200,
+                    "shelves": 4,
+                    "fronts": 1,
+                    "parts": [
+                        {
+                            "part_id": "P004-P016",
+                            "part_label": "2.1.1",
+                            "part_name": "Bok",
+                            "part_type": "bok",
+                            "length": 520,
+                            "width": 200,
+                            "thickness": 18,
+                            "quantity": 2,
+                            "material": "Płyta 18mm",
+                            "edge_length_1": 2,
+                            "edge_length_2": 0.0,
+                            "edge_width_1": 0.0,
+                            "edge_width_2": 0.0
+                        },
+                        {
+                            "part_id": "P004-P017",
+                            "part_label": "2.1.2",
+                            "part_name": "Wieniec",
+                            "part_type": "wieniec",
+                            "length": 564,
+                            "width": 200,
+                            "thickness": 18,
+                            "quantity": 2,
+                            "material": "Płyta 18mm",
+                            "edge_length_1": 2,
+                            "edge_length_2": 0.0,
+                            "edge_width_1": 0.0,
+                            "edge_width_2": 0.0
+                        },
+                        {
+                            "part_id": "P004-P018",
+                            "part_label": "2.1.3",
+                            "part_name": "Półka",
+                            "part_type": "polka",
+                            "length": 564,
+                            "width": 180,
+                            "thickness": 18,
+                            "quantity": 4,
+                            "material": "Płyta 18mm",
+                            "edge_length_1": 2,
+                            "edge_length_2": 0.0,
+                            "edge_width_1": 0.0,
+                            "edge_width_2": 0.0
+                        },
+                        {
+                            "part_id": "P004-P019",
+                            "part_label": "2.1.4",
+                            "part_name": "Plecy",
+                            "part_type": "plecy",
+                            "length": 520,
+                            "width": 600,
+                            "thickness": 3,
+                            "quantity": 1,
+                            "material": "HDF 3mm",
+                            "edge_length_1": 0.0,
+                            "edge_length_2": 0.0,
+                            "edge_width_1": 0.0,
+                            "edge_width_2": 0.0
+                        },
+                        {
+                            "part_id": "P004-P020",
+                            "part_label": "2.1.5",
+                            "part_name": "Front",
+                            "part_type": "front",
+                            "length": 520,
+                            "width": 600.0,
+                            "thickness": 18,
+                            "quantity": 1,
+                            "material": "Front 18mm",
+                            "edge_length_1": 2,
+                            "edge_length_2": 2,
+                            "edge_width_1": 2,
+                            "edge_width_2": 2
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "section_id": "P004-S002",
+            "section_number": 3,
+            "section_name": "dupa",
+            "cabinets": [
+                {
+                    "cabinet_id": "P004-C002",
+                    "cabinet_label": "3.1",
+                    "cabinet_type": "dolna",
+                    "width": 500,
+                    "height": 720,
+                    "depth": 560,
+                    "shelves": 3,
+                    "fronts": 2,
+                    "parts": [
+                        {
+                            "part_id": "P004-P026",
+                            "part_label": "3.1.1",
+                            "part_name": "Bok",
+                            "part_type": "bok",
+                            "length": 720,
+                            "width": 560,
+                            "thickness": 18,
+                            "quantity": 2,
+                            "material": "Płyta 18mm",
+                            "edge_length_1": 2,
+                            "edge_length_2": 0.0,
+                            "edge_width_1": 0.0,
+                            "edge_width_2": 0.0
+                        },
+                        {
+                            "part_id": "P004-P027",
+                            "part_label": "3.1.2",
+                            "part_name": "Wieniec",
+                            "part_type": "wieniec",
+                            "length": 464,
+                            "width": 560,
+                            "thickness": 18,
+                            "quantity": 2,
+                            "material": "Płyta 18mm",
+                            "edge_length_1": 2,
+                            "edge_length_2": 0.0,
+                            "edge_width_1": 0.0,
+                            "edge_width_2": 0.0
+                        },
+                        {
+                            "part_id": "P004-P028",
+                            "part_label": "3.1.3",
+                            "part_name": "Półka",
+                            "part_type": "polka",
+                            "length": 464,
+                            "width": 540,
+                            "thickness": 18,
+                            "quantity": 3,
+                            "material": "Płyta 18mm",
+                            "edge_length_1": 2,
+                            "edge_length_2": 0.0,
+                            "edge_width_1": 0.0,
+                            "edge_width_2": 0.0
+                        },
+                        {
+                            "part_id": "P004-P029",
+                            "part_label": "3.1.4",
+                            "part_name": "Plecy",
+                            "part_type": "plecy",
+                            "length": 720,
+                            "width": 500,
+                            "thickness": 3,
+                            "quantity": 1,
+                            "material": "HDF 3mm",
+                            "edge_length_1": 0.0,
+                            "edge_length_2": 0.0,
+                            "edge_width_1": 0.0,
+                            "edge_width_2": 0.0
+                        },
+                        {
+                            "part_id": "P004-P030",
+                            "part_label": "3.1.5",
+                            "part_name": "Front",
+                            "part_type": "front",
+                            "length": 720,
+                            "width": 248.5,
+                            "thickness": 18,
+                            "quantity": 2,
+                            "material": "Front 18mm",
+                            "edge_length_1": 2,
+                            "edge_length_2": 2,
+                            "edge_width_1": 2,
+                            "edge_width_2": 2
+                        }
+                    ]
+                },
+                {
+                    "cabinet_id": "P004-C003",
+                    "cabinet_label": "3.2",
+                    "cabinet_type": "slupek",
+                    "width": 600,
+                    "height": 2000,
+                    "depth": 560,
+                    "shelves": 4,
+                    "fronts": 2,
+                    "parts": [
+                        {
+                            "part_id": "P004-P031",
+                            "part_label": "3.2.1",
+                            "part_name": "Bok",
+                            "part_type": "bok",
+                            "length": 2000,
+                            "width": 560,
+                            "thickness": 18,
+                            "quantity": 2,
+                            "material": "Płyta 18mm",
+                            "edge_length_1": 2,
+                            "edge_length_2": 0.0,
+                            "edge_width_1": 0.0,
+                            "edge_width_2": 0.0
+                        },
+                        {
+                            "part_id": "P004-P032",
+                            "part_label": "3.2.2",
+                            "part_name": "Wieniec",
+                            "part_type": "wieniec",
+                            "length": 564,
+                            "width": 560,
+                            "thickness": 18,
+                            "quantity": 2,
+                            "material": "Płyta 18mm",
+                            "edge_length_1": 2,
+                            "edge_length_2": 0.0,
+                            "edge_width_1": 0.0,
+                            "edge_width_2": 0.0
+                        },
+                        {
+                            "part_id": "P004-P033",
+                            "part_label": "3.2.3",
+                            "part_name": "Półka",
+                            "part_type": "polka",
+                            "length": 564,
+                            "width": 540,
+                            "thickness": 18,
+                            "quantity": 4,
+                            "material": "Płyta 18mm",
+                            "edge_length_1": 2,
+                            "edge_length_2": 0.0,
+                            "edge_width_1": 0.0,
+                            "edge_width_2": 0.0
+                        },
+                        {
+                            "part_id": "P004-P034",
+                            "part_label": "3.2.4",
+                            "part_name": "Plecy",
+                            "part_type": "plecy",
+                            "length": 2000,
+                            "width": 600,
+                            "thickness": 3,
+                            "quantity": 1,
+                            "material": "HDF 3mm",
+                            "edge_length_1": 0.0,
+                            "edge_length_2": 0.0,
+                            "edge_width_1": 0.0,
+                            "edge_width_2": 0.0
+                        },
+                        {
+                            "part_id": "P004-P035",
+                            "part_label": "3.2.5",
+                            "part_name": "Front",
+                            "part_type": "front",
+                            "length": 2000,
+                            "width": 298.5,
+                            "thickness": 18,
+                            "quantity": 2,
+                            "material": "Front 18mm",
+                            "edge_length_1": 2,
+                            "edge_length_2": 2,
+                            "edge_width_1": 2,
+                            "edge_width_2": 2
+                        }
+                    ]
+                }
+            ]
         }
     ]
 }

@@ -1,3 +1,6 @@
+from src.core.cabinet_wizard import CabinetWizard
+
+
 class SectionWorkspace:
 
     def __init__(self, project, section, project_manager):
@@ -19,8 +22,8 @@ class SectionWorkspace:
 
             print("1. Informacje o sekcji")
             print("2. Lista szafek")
-            print("3. Dodaj element")
-            print("4. Usuń element")
+            print("3. Dodaj szafkę")
+            print("4. Lista formatek")
             print("0. Powrót")
 
             choice = input("\nWybierz opcję: ")
@@ -30,9 +33,9 @@ class SectionWorkspace:
             elif choice == "2":
                 self.show_cabinets()
             elif choice == "3":
-                self.add_element()
+                self.add_cabinet()
             elif choice == "4":
-                self.remove_element()
+                self.show_parts()
             elif choice == "0":
                 break
             else:
@@ -67,10 +70,57 @@ class SectionWorkspace:
                 )
         input("\nENTER - powrót")
 
-    def add_element(self):
-        print("\nKreator elementów będzie dostępny w następnym etapie.")
+    def add_cabinet(self):
+
+        wizard = CabinetWizard(self.project, self.section)
+
+        cabinet = wizard.run()
+
+        if cabinet is None:
+            input("\nENTER - powrót")
+            return
+
+        self.section.add_cabinet(cabinet)
+
+        self.project_manager.save_project(self.project)
+
+        print()
+        print("=" * 42)
+        print(" Szafka została dodana")
+        print("=" * 42)
+        print()
+        print(f"ID systemowe : {cabinet.cabinet_id}")
+        print(f"Numer szafki : {cabinet.cabinet_label}")
+        print(f"Formatki     : {len(cabinet.parts)} pozycji")
+        print()
+        print("=" * 42)
+
         input("\nENTER - powrót")
 
-    def remove_element(self):
-        print("\nUsuwanie elementów będzie dostępne w następnym etapie.")
+    def show_parts(self):
+
+        print("\n========================================")
+        print("Lista formatek")
+        print("========================================")
+
+        if not self.section.cabinets:
+            print("\nBrak szafek.")
+            input("\nENTER - powrót")
+            return
+
+        for cabinet in self.section.cabinets:
+
+            print(f"\nSzafka {cabinet.cabinet_label} - {cabinet.cabinet_type}\n")
+
+            if not cabinet.parts:
+                print("Brak formatek.")
+                continue
+
+            for part in cabinet.parts:
+                print(
+                    f"{part.part_label:<10}{part.part_name:<10}"
+                    f"{part.length:>7} x{part.width:>7}"
+                    f"{part.quantity:>4} szt.  {part.material}"
+                )
+
         input("\nENTER - powrót")

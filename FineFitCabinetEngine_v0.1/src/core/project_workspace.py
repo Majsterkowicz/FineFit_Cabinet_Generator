@@ -1,4 +1,6 @@
+from src.core.prompt import choose
 from src.core.section_wizard import SectionWizard
+from src.core.section_workspace import SectionWorkspace
 
 class ProjectWorkspace:
 
@@ -105,7 +107,28 @@ class ProjectWorkspace:
         print("Zmiana nazwy sekcji - funkcja w przygotowaniu.")
 
     def open_section(self):
-        print("Otwieranie sekcji - funkcja w przygotowaniu.")
+
+        if not self.project.sections:
+            print("\nProjekt nie zawiera jeszcze sekcji.")
+            return
+
+        section = choose(
+            sorted(
+                self.project.sections,
+                key=lambda s: s.section_number
+            ),
+            label=lambda s: f"{s.section_number}. {s.section_name}",
+            title="Wybierz sekcję"
+        )
+
+        if section is None:
+            return
+
+        SectionWorkspace(
+            self.project,
+            section,
+            self.project_manager
+        ).run()
 
     def show_project_info(self):
         print()

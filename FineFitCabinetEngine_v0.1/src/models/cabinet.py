@@ -1,4 +1,6 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, field, asdict
+
+from src.models.part import Part
 
 
 @dataclass
@@ -20,6 +22,8 @@ class Cabinet:
 
     fronts: int
 
+    parts: list[Part] = field(default_factory=list)
+
     def to_dict(self):
         return asdict(self)
 
@@ -34,5 +38,9 @@ class Cabinet:
             height=data["height"],
             depth=data["depth"],
             shelves=data["shelves"],
-            fronts=data["fronts"]
+            fronts=data["fronts"],
+            parts=[
+                Part.from_dict(part)
+                for part in data.get("parts", [])
+            ]
         )

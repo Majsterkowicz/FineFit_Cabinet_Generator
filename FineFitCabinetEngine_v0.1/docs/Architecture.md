@@ -20,9 +20,8 @@ Podstawową zasadą projektu jest:
 src/
 
     core/
-        logika działania programu
-        workspaces
-        wizards
+        interfejs tekstowy (CLI)
+        workspaces, wizards, prompt
 
     models/
         modele domenowe
@@ -30,14 +29,16 @@ src/
     services/
         usługi biznesowe
 
-    utils/
-        funkcje pomocnicze
+    generators/
+        generatory technologiczne
 
-    ui/
-        interfejs tekstowy (CLI)
+    api/
+        REST API (FastAPI)
+
+web/
+    interfejs przeglądarkowy
 
 docs/
-
     dokumentacja projektu
 ```
 
@@ -50,10 +51,10 @@ Obecne modele:
 - Project
 - Section
 - Cabinet
+- Part
 
 Planowane modele:
 
-- Part
 - Front
 - Hardware
 - Material
@@ -172,18 +173,30 @@ Services realizują logikę biznesową projektu.
 
 Obecne:
 
-- ProjectManager
-- IdGenerator
+- ProjectManager - zapis i odczyt projektów
+- IdGenerator - numeracja systemowa i technologiczna
+- SectionService - operacje na sekcjach
+- CabinetService - operacje na szafkach
+
+Generators wyliczają technologię wykonania.
+
+Obecne:
+
+- PartGenerator - formatki korpusu
+- BomGenerator - lista rozkroju
 
 Planowane:
 
-- CabinetGenerator
-- PartGenerator
-- BOMGenerator
+- FrontGenerator
+- MaterialGenerator
 - PricingEngine
 - ReportGenerator
 
-Services mogą tworzyć modele domenowe.
+Podział:
+
+- Service tworzy i modyfikuje modele domenowe,
+- Generator wylicza dane wynikowe z gotowego modelu,
+- IdGenerator wyłącznie nadaje numery i nie tworzy modeli.
 
 ---
 
@@ -222,12 +235,12 @@ ProjectManager.save()
 Wizard odpowiada za:
 
 - pobranie danych od użytkownika,
-- walidację danych,
+- sprawdzenie poprawności formatu (liczba, pusty tekst),
 - wyświetlenie podsumowania,
-- utworzenie kompletnego modelu,
+- zlecenie utworzenia modelu usłudze,
 - zwrócenie gotowego obiektu.
 
-Wizard nie zapisuje projektu.
+Wizard nie zapisuje projektu i nie tworzy modeli samodzielnie.
 
 ---
 
@@ -246,15 +259,26 @@ Workspace nie tworzy modeli domenowych.
 
 # 10. Warstwa UI
 
-Warstwa UI odpowiada wyłącznie za komunikację z użytkownikiem.
+Program posiada dwa interfejsy:
 
-Nie zawiera logiki biznesowej.
+- CLI (`src/core/`) - workspaces oraz wizards,
+- Web (`src/api/` + `web/`) - REST API oraz frontend.
 
-Cała logika znajduje się w:
+Żaden z nich nie zawiera logiki biznesowej.
 
-- Services
-- Wizards
-- Models
+Oba korzystają z tych samych usług:
+
+```
+CLI Wizard  ─┐
+             ├─→ Service ─→ Generator ─→ Model ─→ ProjectManager.save()
+REST API    ─┘
+```
+
+Wizard pobiera dane od użytkownika i przekazuje je do usługi.
+API waliduje dane wejściowe (Pydantic) i przekazuje je do tej samej usługi.
+
+Reguła: logika, która musi działać w obu interfejsach,
+nigdy nie znajduje się w Wizardzie.
 
 ---
 
@@ -291,7 +315,17 @@ N - anuluj
 
 Walidacja wykonywana jest możliwie najwcześniej.
 
-Za walidację odpowiada Wizard.
+Podział odpowiedzialności:
+
+- Wizard oraz schematy API sprawdzają format danych wejściowych,
+- Service sprawdza reguły biznesowe i zgłasza ValueError,
+- Service zgłasza LookupError, gdy obiekt nie istnieje.
+
+Reguły biznesowe znajdują się wyłącznie w Services, dzięki czemu
+CLI oraz API egzekwują dokładnie ten sam kontrakt.
+
+API tłumaczy wyjątki na kody HTTP w jednym miejscu:
+ValueError na 400, LookupError na 404.
 
 Program nigdy nie tworzy modelu z niepoprawnymi danymi.
 

@@ -1,4 +1,5 @@
-from src.services.id_generator import IdGenerator
+from src.core.prompt import banner, confirm_save
+from src.services.section_service import SectionService
 
 
 class SectionWizard:
@@ -9,12 +10,7 @@ class SectionWizard:
 
     def run(self):
 
-        print()
-        print("=" * 42)
-        print(" Dodawanie sekcji")
-        print("=" * 42)
-
-        print()
+        banner("Dodawanie sekcji")
 
         if self.project.sections:
             print("Istniejące sekcje:\n")
@@ -28,51 +24,31 @@ class SectionWizard:
                 )
         else:
             print("Projekt nie zawiera jeszcze sekcji.")
+
         print()
         print("-" * 42)
         print()
-        section_number = IdGenerator.generate_section_number(
-            self.project
-        )
-        print(f"Tworzona sekcja nr: {section_number}")
-        print()
 
-        section_name = input(
-            "Podaj nazwę sekcji: "
-        ).strip()
+        section_name = input("Podaj nazwę sekcji: ")
 
-        if not section_name:
+        # regułę pustej nazwy zna usługa - kreator tylko pokazuje komunikat
+        try:
+            section = SectionService.create(self.project, section_name)
 
-            print("\nNazwa sekcji nie może być pusta.")
+        except ValueError as error:
+            print(f"\n{error}")
             return None
 
-        print()
-        print("=" * 42)
-        print(" Podsumowanie")
-        print("=" * 42)
-        print()
-        print(f"Numer sekcji : {section_number}")
-        print(f"Nazwa         : {section_name}")
+        banner("Podsumowanie")
+
+        print(f"Numer sekcji : {section.section_number}")
+        print(f"Nazwa        : {section.section_name}")
         print()
         print("=" * 42)
         print()
 
-        while True:
-            confirm = input(
-                "ENTER - zapisz | N - anuluj: "
-            ).lower()
+        if not confirm_save():
+            print("\nDodawanie sekcji anulowano.")
+            return None
 
-            if confirm == "":
-                break
-
-            if confirm == "n":
-                print("\nDodawanie sekcji anulowano.")
-                return None
-
-            print("\nNieprawidłowy wybór. Naciśnij ENTER lub wpisz N.")
-
-        return IdGenerator.create_section(
-            project=self.project,
-            section_number=section_number,
-            section_name=section_name
-        )
+        return section
