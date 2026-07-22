@@ -1,4 +1,4 @@
-from src.models.section import Section
+from src.core.section_wizard import SectionWizard
 
 class ProjectWorkspace:
 
@@ -31,9 +31,7 @@ class ProjectWorkspace:
         return input("Twój wybór: ")
 
     def sections_menu(self):
-
         while True:
-
             print()
             print("=" * 42)
             print(" Zarządzanie sekcjami")
@@ -53,61 +51,76 @@ class ProjectWorkspace:
             choice = input("Twój wybór: ")
 
             if choice == "1":
-                print("\n=== Dodawanie sekcji ===\n")
-                section_name = input("Podaj nazwę sekcji: ").strip()
-                if not section_name:
-                    print("Nazwa sekcji nie może być pusta.")
-                else:
-                    section = Section(section_name=section_name)
-                    self.project.add_section(section)
-                    self.project_manager.save_project(self.project)
-                    print(f'Sekcja "{section_name}" została dodana.')
+                self.add_section()
             elif choice == "2":
-                print()
-                if not self.project.sections:
-                    print("Projekt nie zawiera jeszcze sekcji.")
-                else:
-                    print("Lista sekcji:\n")
-                    for index, section in enumerate(
-                            self.project.sections,
-                            start=1):
-                        print(f"{index}. {section.section_name}")
+                self.list_sections()
             elif choice == "3":
-                print("Usuwanie sekcji - funkcja w przygotowaniu.")
+                self.delete_section()
             elif choice == "4":
-                print("Zmiana nazwy sekcji - funkcja w przygotowaniu.")
+                self.rename_section()
             elif choice == "5":
-                print("Otwarcie sekcji - funkcja w przygotowaniu.")
+                self.open_section()
             elif choice == "0":
                 break
             else:
                 print("Nieprawidłowa opcja.")
             input("\nNaciśnij Enter, aby kontynuować...")
 
-    def run(self):
+    def add_section(self):
+        wizard = SectionWizard(self.project)
+        section = wizard.run()
+        if section is None:
+            return
+        self.project.add_section(section)
+        self.project_manager.save_project(
+            self.project
+        )
+        print()
+        print(
+            f'Sekcja "{section.section_name}" została dodana.'
+        )
 
-       while True:
+    def list_sections(self):
+        print()
+        if not self.project.sections:
+            print("Projekt nie zawiera jeszcze sekcji.")
+            return
+        print("Lista sekcji:\n")
+        for section in self.project.sections:
+            print(
+                f"{section.section_number}. "
+                f"{section.section_name}"
+            )
 
-        choice = self.show()
+    def delete_section(self):
+        print("Usuwanie sekcji - funkcja w przygotowaniu.")
 
+    def rename_section(self):
+        print("Zmiana nazwy sekcji - funkcja w przygotowaniu.")
+
+    def open_section(self):
+        print("Otwieranie sekcji - funkcja w przygotowaniu.")
+
+    def show_project_info(self):
         print()
 
-        if choice == "1":
+        print(f"ID projektu : {self.project.project_id}")
+        print(f"Nazwa       : {self.project.project_name}")
+        print(f"Sekcji      : {len(self.project.sections)}")
+        print(f"Utworzono   : {self.project.created_at}")
+        
+    def run(self):
+
+        while True:
+            choice = self.show()
             print()
-            print(f"ID projektu : {self.project.project_id}")
-            print(f"Nazwa       : {self.project.project_name}")
-            print(f"Sekcji      : {len(self.project.sections)}")
-            print(f"Utworzono   : {self.project.created_at}")
-
-        elif choice == "2":
-
-            self.sections_menu()
-
-        elif choice == "0":
-            print("Zamykanie projektu...")
-            break
-
-        else:
-            print("Nieprawidłowa opcja.")
-
-        input("\nNaciśnij Enter, aby kontynuować...")
+            if choice == "1":
+                self.show_project_info()
+            elif choice == "2":
+                self.sections_menu()
+            elif choice == "0":
+                print("Zamykanie projektu...")
+                break
+            else:
+                print("Nieprawidłowa opcja.")
+            input("\nNaciśnij Enter, aby kontynuować...")

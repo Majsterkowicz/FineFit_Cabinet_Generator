@@ -10,7 +10,7 @@ class Section:
     section_number: str
     section_name: str
 
-    cabinets: list = field(default_factory=list)
+    cabinets: list[Cabinet] = field(default_factory=list)
 
     def to_dict(self):
         return asdict(self)

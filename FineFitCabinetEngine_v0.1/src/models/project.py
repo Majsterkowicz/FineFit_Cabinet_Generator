@@ -11,7 +11,7 @@ class Project:
     created_at: str = field(
         default_factory=lambda: datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     )
-    sections: list = field(default_factory=list)
+    sections: list[Section] = field(default_factory=list)
 
     def to_dict(self):
         """Konwersja obiektu Project do słownika."""
