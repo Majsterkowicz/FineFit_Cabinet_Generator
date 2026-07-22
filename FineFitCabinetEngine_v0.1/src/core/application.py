@@ -1,4 +1,4 @@
-from src.core.menu import Menu
+from src.core.main_menu import MainMenu
 from src.services.project_manager import ProjectManager
 
 
@@ -6,7 +6,7 @@ class Application:
 
     def __init__(self):
 
-        self.menu = Menu()
+        self.main_menu = MainMenu()
 
         self.project_manager = ProjectManager()
 
@@ -31,7 +31,7 @@ class Application:
 
         while True:
 
-            choice = self.menu.show_main_menu()
+            choice = self.main_menu.show()
 
             print()
 
