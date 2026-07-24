@@ -335,6 +335,16 @@ code, .mono { font-family: ui-monospace, monospace; font-size: 12px; }
 
 .modal h2 { margin-bottom: 14px; }
 
+.modal h3 { margin: 4px 0 8px; font-size: 13px; color: var(--muted); }
+
+.type-row {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(5, 1fr) auto;
+    gap: 6px; margin-bottom: 6px; align-items: center;
+}
+
+.type-row input { width: 100%; min-width: 0; }
+
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
 
 .error { color: var(--danger); font-size: 12px; margin-top: 10px; }

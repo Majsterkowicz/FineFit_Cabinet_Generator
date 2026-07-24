@@ -1,8 +1,8 @@
-from src import config
 from src.core.prompt import (
     ask_cabinet_dimensions, banner, choose, confirm_save)
 from src.services.cabinet_service import CabinetService
 from src.services.id_generator import IdGenerator
+from src.services.settings_manager import current_settings
 
 
 class CabinetWizard:
@@ -36,8 +36,10 @@ class CabinetWizard:
         print(f"Tworzona szafka nr: {cabinet_label}")
         print()
 
+        cabinet_types = current_settings()["cabinet_types"]
+
         cabinet_type = choose(
-            list(config.CABINET_TYPES),
+            list(cabinet_types),
             label=lambda name: name,
             title="Typ szafki",
             back="Anuluj"
@@ -46,7 +48,7 @@ class CabinetWizard:
         if cabinet_type is None:
             return None
 
-        defaults = config.CABINET_TYPES[cabinet_type]
+        defaults = cabinet_types[cabinet_type]
 
         print()
         print("ENTER - przyjmij wartość domyślną")

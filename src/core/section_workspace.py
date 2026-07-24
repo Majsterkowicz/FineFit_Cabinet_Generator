@@ -1,7 +1,7 @@
-from src import config
 from src.core.cabinet_wizard import CabinetWizard
 from src.core.prompt import ask_cabinet_dimensions, choose, confirm
 from src.services.cabinet_service import CabinetService
+from src.services.settings_manager import current_settings
 
 
 class SectionWorkspace:
@@ -131,7 +131,7 @@ class SectionWorkspace:
             return
 
         cabinet_type = choose(
-            list(config.CABINET_TYPES),
+            list(current_settings()["cabinet_types"]),
             label=lambda name: name,
             title=f"Typ szafki (obecnie: {cabinet.cabinet_type})",
             back="Anuluj"

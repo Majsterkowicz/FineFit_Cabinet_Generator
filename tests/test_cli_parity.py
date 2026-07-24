@@ -120,5 +120,4 @@ def test_cli_show_pricing(manager, project, section, cabinet, capsys):
     output = capsys.readouterr().out
     assert "Wycena" in output
     assert "RAZEM" in output
-    from src import config
-    assert config.CURRENCY in output
+    assert project.pricing["currency"] in output

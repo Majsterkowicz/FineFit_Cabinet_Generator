@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.10.0
+- PricingEngine - orientacyjna wycena projektu (materiały, obrzeże, okucia)
+  w API, interfejsie przeglądarkowym oraz CLI.
+- Ustawienia globalne (settings.json) edytowalne w UI: konstrukcja,
+  materiały i ceny domyślne, typy szafek. config.py dostarcza wartości
+  fabryczne (seed).
+- Ceny per-projekt jako migawka ustawień z chwili utworzenia - zmiana
+  ustawień globalnych nie zmienia istniejących wycen; ceny projektu są
+  edytowalne osobno.
+- Migracja: projekty sprzed wprowadzenia wyceny uzupełniają migawkę cennika
+  przy wczytaniu.
+
 ## v0.9.1
 - Usuwanie projektów (API, interfejs przeglądarkowy oraz CLI).
 - Domknięcie parzystości CLI z API: usuwanie i zmiana nazwy sekcji,

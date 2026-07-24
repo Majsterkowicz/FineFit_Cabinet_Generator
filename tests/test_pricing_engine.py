@@ -1,6 +1,5 @@
 """Testy wyceny projektu (PricingEngine)."""
 
-from src import config
 from src.generators.pricing_engine import PricingEngine
 from src.services.cabinet_service import CabinetService
 
@@ -19,7 +18,7 @@ def _add_cabinet(project, section, **overrides):
 def test_empty_project_costs_zero(project):
     estimate = PricingEngine.estimate(project)
     assert estimate["total"] == 0
-    assert estimate["currency"] == config.CURRENCY
+    assert estimate["currency"] == project.pricing["currency"]
 
 
 def test_estimate_has_all_sections(project, cabinet):
@@ -30,11 +29,11 @@ def test_estimate_has_all_sections(project, cabinet):
 
 def test_material_cost_is_area_times_price(project, cabinet):
     estimate = PricingEngine.estimate(project)
+    prices = project.pricing["material_prices"]
 
     for line in estimate["materials"]:
-        expected = round(line["area"] * config.MATERIAL_PRICES[line["material"]], 2)
-        assert line["cost"] == expected
-        assert line["unit_price"] == config.MATERIAL_PRICES[line["material"]]
+        assert line["unit_price"] == prices[line["material"]]
+        assert line["cost"] == round(line["area"] * prices[line["material"]], 2)
 
 
 def test_hardware_derived_from_fronts(project, section):
@@ -42,9 +41,9 @@ def test_hardware_derived_from_fronts(project, section):
     estimate = PricingEngine.estimate(project)
 
     hardware = {line["name"]: line for line in estimate["hardware"]}
-    # 2 fronty -> 2 uchwyty, 2 * HINGES_PER_FRONT zawiasów
+    # 2 fronty -> 2 uchwyty, 2 * hinges_per_front zawiasów
     assert hardware["Uchwyty"]["quantity"] == 2
-    assert hardware["Zawiasy"]["quantity"] == 2 * config.HINGES_PER_FRONT
+    assert hardware["Zawiasy"]["quantity"] == 2 * project.pricing["hinges_per_front"]
 
 
 def test_total_is_sum_of_lines(project, section):

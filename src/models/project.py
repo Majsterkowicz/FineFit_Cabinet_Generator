@@ -13,6 +13,11 @@ class Project:
     )
     sections: list[Section] = field(default_factory=list)
 
+    # Migawka cennika z chwili utworzenia projektu (patrz PricingEngine.snapshot).
+    # Pusty słownik oznacza projekt sprzed wprowadzenia wyceny - uzupełniany
+    # przy wczytaniu (ProjectManager.load_project).
+    pricing: dict = field(default_factory=dict)
+
     def to_dict(self):
         """Konwersja obiektu Project do słownika."""
         return asdict(self)
@@ -27,7 +32,8 @@ class Project:
             sections=[
                 Section.from_dict(section)
                 for section in data.get("sections", [])
-            ]
+            ],
+            pricing=data.get("pricing", {})
         )
     def add_section(self, section):
         """Dodaje sekcję do projektu."""

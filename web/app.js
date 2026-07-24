@@ -680,6 +680,7 @@ async function renderCuttingList() {
     `;
 
     $("#export-csv").addEventListener("click", () => exportCsv(data.rows));
+    $("#edit-prices").addEventListener("click", () => pricesModal(pricing));
 }
 
 /* Panel wyceny - materiał, obrzeże i okucia w jednej tabeli kosztów.
@@ -711,7 +712,10 @@ function pricingPanel(pricing) {
         <div class="panel">
             <div class="panel-head">
                 <h2>Wycena</h2>
-                <span class="badge">${money(pricing.total)}</span>
+                <div class="row">
+                    <span class="badge">${money(pricing.total)}</span>
+                    <button class="small" id="edit-prices">Edytuj ceny</button>
+                </div>
             </div>
             <div class="panel-body">
                 <div class="table-scroll">
@@ -755,6 +759,206 @@ function exportCsv(rows) {
     link.click();
     URL.revokeObjectURL(link.href);
 }
+
+/* ----------------------------------------------------------- settings --- */
+
+const numberField = (id, label, value) => `
+    <div><label for="${id}">${escapeHtml(label)}</label>
+        <input id="${id}" type="number" step="any" value="${value}"></div>`;
+
+const textField = (id, label, value) => `
+    <div><label for="${id}">${escapeHtml(label)}</label>
+        <input id="${id}" value="${escapeHtml(value)}"></div>`;
+
+const num = id => Number($("#" + id).value);
+
+/* Ustawienia globalne (konstrukcja, materiały, ceny domyślne, typy szafek).
+   Zmiana nie dotyka istniejących projektów - ich ceny to migawka. */
+async function settingsModal() {
+
+    const s = await api("GET", "/api/settings");
+    const c = s.construction;
+    const m = s.materials;
+    const h = s.hardware;
+
+    openModal(`
+        <h2>Ustawienia</h2>
+
+        <h3>Konstrukcja (mm)</h3>
+        <div class="grid">
+            ${numberField("c-board", "Grubość płyty", c.board_thickness)}
+            ${numberField("c-back", "Grubość pleców", c.back_thickness)}
+            ${numberField("c-setback", "Cofnięcie półki", c.shelf_setback)}
+            ${numberField("c-gap", "Szczelina frontu", c.front_gap)}
+            ${numberField("c-edge", "Grubość obrzeża", c.edge_thickness)}
+        </div>
+
+        <h3 style="margin-top:16px">Materiały i ceny</h3>
+        <div class="grid">
+            ${textField("m-board-name", "Płyta - nazwa", m.board.name)}
+            ${numberField("m-board-price", "Płyta - cena/m²", m.board.price)}
+            ${textField("m-back-name", "Plecy - nazwa", m.back.name)}
+            ${numberField("m-back-price", "Plecy - cena/m²", m.back.price)}
+            ${textField("m-front-name", "Front - nazwa", m.front.name)}
+            ${numberField("m-front-price", "Front - cena/m²", m.front.price)}
+        </div>
+
+        <h3 style="margin-top:16px">Obrzeże, okucia, waluta</h3>
+        <div class="grid">
+            ${numberField("edging", "Obrzeże - cena/m", s.edging_price)}
+            ${numberField("hw-hinges", "Zawiasy / front", h.hinges_per_front)}
+            ${numberField("hw-hinge", "Zawias - cena/szt.", h.hinge_price)}
+            ${numberField("hw-handle", "Uchwyt - cena/szt.", h.handle_price)}
+            ${textField("currency", "Waluta", s.currency)}
+        </div>
+
+        <h3 style="margin-top:16px">Typy szafek</h3>
+        <p class="muted mono" style="font-size:11px">nazwa · szer · wys · głęb · półki · fronty</p>
+        <div id="types-list"></div>
+        <button class="small" id="add-type" type="button">+ Typ</button>
+
+        <div class="error" id="modal-error"></div>
+        <div class="modal-actions">
+            <button onclick="closeModal()">Anuluj</button>
+            <button class="primary" id="modal-save">Zapisz</button>
+        </div>
+    `);
+
+    const types = Object.entries(s.cabinet_types)
+        .map(([name, dims]) => ({ name, ...dims }));
+    $("#types-list").innerHTML = types.map(typeRow).join("");
+
+    // jeden delegowany listener zamiast przepinania po każdym dodaniu wiersza
+    $("#types-list").addEventListener("click", event => {
+        const del = event.target.closest(".t-del");
+        if (del) del.closest(".type-row").remove();
+    });
+
+    $("#add-type").addEventListener("click", () => {
+        $("#types-list").insertAdjacentHTML("beforeend", typeRow());
+    });
+
+    $("#modal-save").addEventListener("click", saveSettings);
+}
+
+function typeRow(type = {}) {
+    const v = { width: 600, height: 720, depth: 560, shelves: 1, fronts: 2, ...type };
+    const cell = (cls, val, num = true) =>
+        `<input class="${cls}" ${num ? 'type="number"' : ""} value="${escapeHtml(String(val))}">`;
+    return `<div class="type-row">
+        ${cell("t-name", v.name || "", false)}
+        ${cell("t-width", v.width)}${cell("t-height", v.height)}
+        ${cell("t-depth", v.depth)}${cell("t-shelves", v.shelves)}
+        ${cell("t-fronts", v.fronts)}
+        <button class="small danger t-del" type="button">×</button>
+    </div>`;
+}
+
+async function saveSettings() {
+
+    const cabinet_types = {};
+    document.querySelectorAll(".type-row").forEach(row => {
+        const pick = cls => Number(row.querySelector(cls).value);
+        const name = row.querySelector(".t-name").value.trim();
+        if (!name) return;
+        cabinet_types[name] = {
+            width: pick(".t-width"), height: pick(".t-height"),
+            depth: pick(".t-depth"), shelves: pick(".t-shelves"),
+            fronts: pick(".t-fronts"),
+        };
+    });
+
+    const settings = {
+        construction: {
+            board_thickness: num("c-board"), back_thickness: num("c-back"),
+            shelf_setback: num("c-setback"), front_gap: num("c-gap"),
+            edge_thickness: num("c-edge"),
+        },
+        materials: {
+            board: { name: $("#m-board-name").value, price: num("m-board-price") },
+            back: { name: $("#m-back-name").value, price: num("m-back-price") },
+            front: { name: $("#m-front-name").value, price: num("m-front-price") },
+        },
+        edging_price: num("edging"),
+        hardware: {
+            hinges_per_front: num("hw-hinges"),
+            hinge_price: num("hw-hinge"), handle_price: num("hw-handle"),
+        },
+        currency: $("#currency").value,
+        cabinet_types,
+    };
+
+    try {
+        await api("PUT", "/api/settings", settings);
+        state.config = await api("GET", "/api/config");  // typy szafek dla kreatora
+        closeModal();
+        if (state.project) render();
+        toast("Ustawienia zapisane");
+    } catch (error) {
+        $("#modal-error").textContent = error.message;
+    }
+}
+
+/* Ceny konkretnego projektu (migawka). Edycja nie dotyka innych projektów. */
+function pricesModal(pricing) {
+
+    // nazwy materiałów odczytujemy po indeksie - bez przenoszenia ich przez DOM
+    const names = Object.keys(pricing.material_prices);
+
+    const materialRows = names.map((name, index) => numberField(
+        `mp-${index}`, `${name} - cena/m²`, pricing.material_prices[name])
+    ).join("");
+
+    openModal(`
+        <h2>Ceny projektu</h2>
+        <p class="muted">Zmiana dotyczy tylko tego projektu.</p>
+
+        <h3>Materiały</h3>
+        <div class="grid">${materialRows}</div>
+
+        <h3 style="margin-top:16px">Obrzeże, okucia, waluta</h3>
+        <div class="grid">
+            ${numberField("p-edging", "Obrzeże - cena/m", pricing.edging_price)}
+            ${numberField("p-hinges", "Zawiasy / front", pricing.hinges_per_front)}
+            ${numberField("p-hinge", "Zawias - cena/szt.", pricing.hardware_prices.hinge)}
+            ${numberField("p-handle", "Uchwyt - cena/szt.", pricing.hardware_prices.handle)}
+            ${textField("p-currency", "Waluta", pricing.currency)}
+        </div>
+
+        <div class="error" id="modal-error"></div>
+        <div class="modal-actions">
+            <button onclick="closeModal()">Anuluj</button>
+            <button class="primary" id="modal-save">Zapisz</button>
+        </div>
+    `);
+
+    $("#modal-save").addEventListener("click", async () => {
+
+        const material_prices = {};
+        names.forEach((name, index) => {
+            material_prices[name] = num(`mp-${index}`);
+        });
+
+        const payload = {
+            currency: $("#p-currency").value,
+            material_prices,
+            edging_price: num("p-edging"),
+            hinges_per_front: num("p-hinges"),
+            hardware_prices: { hinge: num("p-hinge"), handle: num("p-handle") },
+        };
+
+        try {
+            await api("PUT", `${projectUrl()}/prices`, payload);
+            closeModal();
+            renderCuttingList();
+            toast("Ceny zapisane");
+        } catch (error) {
+            $("#modal-error").textContent = error.message;
+        }
+    });
+}
+
+$("#settings-btn").addEventListener("click", settingsModal);
 
 /* ---------------------------------------------------------------- init --- */
 

@@ -5,13 +5,13 @@ from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from src import config
 from src.api.schemas import CabinetInput, ProjectCreate, SectionName
 from src.generators.bom_generator import BomGenerator
 from src.generators.pricing_engine import PricingEngine
 from src.services.cabinet_service import CabinetService
 from src.services.project_manager import ProjectManager
 from src.services.section_service import SectionService
+from src.services.settings_manager import settings_manager
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -60,15 +60,34 @@ def handle_lookup_error(request: Request, error: LookupError):
 
 @app.get("/api/config")
 def get_config():
-    """Typy szafek oraz stałe konstrukcyjne."""
+    """Typy szafek oraz stałe konstrukcyjne (z ustawień globalnych)."""
+
+    settings = settings_manager.load()
 
     return {
         "cabinet_types": [
             {"name": name, **defaults}
-            for name, defaults in config.CABINET_TYPES.items()
+            for name, defaults in settings["cabinet_types"].items()
         ],
-        **config.CONSTRUCTION
+        **settings["construction"]
     }
+
+
+# --- Ustawienia globalne --------------------------------------------------
+
+
+@app.get("/api/settings")
+def get_settings():
+    """Pełne ustawienia globalne (konstrukcja, materiały, ceny, typy szafek)."""
+
+    return settings_manager.load()
+
+
+@app.put("/api/settings")
+def update_settings(payload: dict):
+    """Zapisuje ustawienia globalne. Zmiana nie dotyka istniejących wycen."""
+
+    return settings_manager.save(payload)
 
 
 # --- Projekty -------------------------------------------------------------
@@ -251,6 +270,24 @@ def pricing(project_id: str, section_id: str = None):
     project = project_manager.load_project_by_id(project_id)
 
     return PricingEngine.estimate(project, section_id)
+
+
+@app.get("/api/projects/{project_id}/prices")
+def get_prices(project_id: str):
+    """Migawka cennika projektu (edytowalna, niezależna od ustawień)."""
+
+    return project_manager.load_project_by_id(project_id).pricing
+
+
+@app.put("/api/projects/{project_id}/prices")
+def update_prices(project_id: str, payload: dict):
+
+    project = project_manager.load_project_by_id(project_id)
+
+    project.pricing = {**project.pricing, **payload}
+    project_manager.save_project(project)
+
+    return project.pricing
 
 
 @app.get("/api/projects/{project_id}/parts")

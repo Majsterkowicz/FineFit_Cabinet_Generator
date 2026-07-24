@@ -141,3 +141,29 @@ def test_pricing_endpoint_returns_total(client):
     assert data["total"] > 0
     assert data["currency"]
     assert data["materials"] and data["hardware"]
+
+
+# --- Ustawienia i ceny projektu -------------------------------------------
+
+
+def test_settings_get_and_put(client):
+    data = client.get("/api/settings").json()
+    assert "cabinet_types" in data and "construction" in data
+
+    data["currency"] = "EUR"
+    saved = client.put("/api/settings", json=data)
+    assert saved.status_code == 200
+    assert saved.json()["currency"] == "EUR"
+    assert client.get("/api/settings").json()["currency"] == "EUR"
+
+
+def test_project_prices_get_and_put(client):
+    project_id = _new_project(client)
+
+    prices = client.get(f"/api/projects/{project_id}/prices").json()
+    assert "material_prices" in prices
+
+    updated = client.put(
+        f"/api/projects/{project_id}/prices", json={"edging_price": 7.5})
+    assert updated.status_code == 200
+    assert updated.json()["edging_price"] == 7.5

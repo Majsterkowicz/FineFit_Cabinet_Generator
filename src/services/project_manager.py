@@ -1,12 +1,13 @@
 from pathlib import Path
 import json
-import os
 import shutil
-import tempfile
 
 from src import config
+from src.generators.pricing_engine import PricingEngine
 from src.models.project import Project
 from src.services.id_generator import IdGenerator
+from src.services.settings_manager import current_settings
+from src.services.storage import atomic_write_json
 
 
 class ProjectManager:
@@ -75,7 +76,8 @@ class ProjectManager:
 
         project = Project(
             project_id=project_id,
-            project_name=name
+            project_name=name,
+            pricing=PricingEngine.snapshot(current_settings())
         )
 
         self.save_project(project)
@@ -120,9 +122,16 @@ class ProjectManager:
 
         project = Project.from_dict(data)
 
-        # Projekty z wcześniejszych wersji mogą mieć sekcje bez ID -
-        # uzupełniamy je raz przy wczytaniu, aby dało się je adresować.
-        if IdGenerator.backfill_section_ids(project):
+        # Migracje starszych projektów, wykonywane raz przy wczytaniu:
+        # - sekcje bez ID (aby dało się je adresować),
+        # - brak migawki cennika (projekty sprzed wprowadzenia wyceny).
+        changed = IdGenerator.backfill_section_ids(project)
+
+        if not project.pricing:
+            project.pricing = PricingEngine.snapshot(current_settings())
+            changed = True
+
+        if changed:
             self.save_project(project)
 
         return project
@@ -132,35 +141,10 @@ class ProjectManager:
         return self.load_project(self.find_project_folder(project_id))
 
     def save_project(self, project: Project):
-        """
-        Zapisuje projekt do pliku project.json.
-
-        Zapis jest atomowy - plik docelowy nigdy nie pozostaje
-        w stanie częściowo zapisanym.
-        """
+        """Zapisuje projekt do project.json (zapis atomowy)."""
 
         project_folder = self.find_project_folder(project.project_id)
 
-        json_path = project_folder / "project.json"
-
-        descriptor, temporary_path = tempfile.mkstemp(
-            dir=project_folder,
-            suffix=".tmp"
-        )
-
-        try:
-            with os.fdopen(descriptor, "w", encoding="utf-8") as file:
-                json.dump(
-                    project.to_dict(),
-                    file,
-                    indent=4,
-                    ensure_ascii=False
-                )
-
-            os.replace(temporary_path, json_path)
-
-        except BaseException:
-            Path(temporary_path).unlink(missing_ok=True)
-            raise
+        atomic_write_json(project_folder / "project.json", project.to_dict())
 
         return project

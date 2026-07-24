@@ -7,9 +7,26 @@ nigdy nie dotykają prawdziwych danych w projects/.
 import pytest
 from fastapi.testclient import TestClient
 
+from src.services import settings_manager as settings_module
 from src.services.cabinet_service import CabinetService
 from src.services.project_manager import ProjectManager
 from src.services.section_service import SectionService
+
+
+@pytest.fixture(autouse=True)
+def isolated_settings(tmp_path, monkeypatch):
+    """Kieruje ustawienia globalne na plik tymczasowy.
+
+    settings_manager to współdzielona instancja (ten sam obiekt w API i
+    usługach), więc podmiana ścieżki izoluje wszystkie warstwy naraz i
+    chroni prawdziwy settings.json przed zapisem z testów.
+    """
+
+    monkeypatch.setattr(
+        settings_module.settings_manager,
+        "settings_path",
+        tmp_path / "settings.json",
+    )
 
 
 @pytest.fixture

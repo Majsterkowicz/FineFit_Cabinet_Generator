@@ -1,7 +1,7 @@
-from src import config
 from src.generators.part_generator import PartGenerator
 from src.models.cabinet import Cabinet
 from src.services.id_generator import IdGenerator
+from src.services.settings_manager import current_settings
 
 
 class CabinetService:
@@ -24,7 +24,10 @@ class CabinetService:
             fronts: int):
         """Tworzy szafkę i generuje jej elementy produkcyjne."""
 
-        CabinetService.validate_type(cabinet_type)
+        # Jeden odczyt ustawień na całą operację (walidacja + generowanie).
+        settings = current_settings()
+
+        CabinetService.validate_type(cabinet_type, settings)
 
         cabinet = Cabinet(
             cabinet_id=IdGenerator.generate_cabinet_id(project),
@@ -37,7 +40,7 @@ class CabinetService:
             fronts=fronts
         )
 
-        cabinet.parts = PartGenerator.generate(project, cabinet)
+        cabinet.parts = PartGenerator.generate(project, cabinet, settings)
 
         return cabinet
 
@@ -58,7 +61,9 @@ class CabinetService:
         Stare ID nie są ponownie wykorzystywane.
         """
 
-        CabinetService.validate_type(cabinet_type)
+        settings = current_settings()
+
+        CabinetService.validate_type(cabinet_type, settings)
 
         cabinet.cabinet_type = cabinet_type
         cabinet.width = width
@@ -67,7 +72,7 @@ class CabinetService:
         cabinet.shelves = shelves
         cabinet.fronts = fronts
 
-        cabinet.parts = PartGenerator.generate(project, cabinet)
+        cabinet.parts = PartGenerator.generate(project, cabinet, settings)
 
         return cabinet
 
@@ -94,11 +99,13 @@ class CabinetService:
         return cabinet
 
     @staticmethod
-    def validate_type(cabinet_type: str):
+    def validate_type(cabinet_type: str, settings):
 
-        if cabinet_type not in config.CABINET_TYPES:
+        cabinet_types = settings["cabinet_types"]
 
-            available = ", ".join(config.CABINET_TYPES)
+        if cabinet_type not in cabinet_types:
+
+            available = ", ".join(cabinet_types)
 
             raise ValueError(
                 f"Nieznany typ szafki: {cabinet_type}. "
