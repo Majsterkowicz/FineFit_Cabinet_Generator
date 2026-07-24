@@ -8,6 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from src import config
 from src.api.schemas import CabinetInput, ProjectCreate, SectionName
 from src.generators.bom_generator import BomGenerator
+from src.generators.pricing_engine import PricingEngine
 from src.services.cabinet_service import CabinetService
 from src.services.project_manager import ProjectManager
 from src.services.section_service import SectionService
@@ -15,6 +16,19 @@ from src.services.section_service import SectionService
 ROOT = Path(__file__).resolve().parents[2]
 
 WEB_DIRECTORY = ROOT / "web"
+
+# Zasoby frontendu (JS/CSS) nie są wersjonowane w adresie, więc każą
+# przeglądarce rewalidować je przy każdym wejściu (ETag -> 304, gdy bez
+# zmian). Dzięki temu po zmianie kodu nie widać nieaktualnej wersji.
+NO_CACHE = "no-cache"
+
+
+class NoCacheStaticFiles(StaticFiles):
+
+    async def get_response(self, path, scope):
+        response = await super().get_response(path, scope)
+        response.headers["Cache-Control"] = NO_CACHE
+        return response
 
 app = FastAPI(
     title="FineFit Cabinet Engine API",
@@ -231,6 +245,14 @@ def cutting_list(project_id: str, section_id: str = None):
     }
 
 
+@app.get("/api/projects/{project_id}/pricing")
+def pricing(project_id: str, section_id: str = None):
+
+    project = project_manager.load_project_by_id(project_id)
+
+    return PricingEngine.estimate(project, section_id)
+
+
 @app.get("/api/projects/{project_id}/parts")
 def list_parts(project_id: str, section_id: str = None):
 
@@ -248,11 +270,14 @@ def list_parts(project_id: str, section_id: str = None):
 @app.get("/")
 def index():
 
-    return FileResponse(WEB_DIRECTORY / "index.html")
+    return FileResponse(
+        WEB_DIRECTORY / "index.html",
+        headers={"Cache-Control": NO_CACHE}
+    )
 
 
 app.mount(
     "/static",
-    StaticFiles(directory=WEB_DIRECTORY),
+    NoCacheStaticFiles(directory=WEB_DIRECTORY),
     name="static"
 )

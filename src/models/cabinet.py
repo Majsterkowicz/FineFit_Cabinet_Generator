@@ -6,7 +6,7 @@ from src.models.part import Part
 @dataclass
 class Cabinet:
 
-    cabinet_id: str          # P015-E001
+    cabinet_id: str          # P015-C001
 
     cabinet_label: str       # 1.2
 

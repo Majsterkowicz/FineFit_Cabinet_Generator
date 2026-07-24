@@ -1,6 +1,7 @@
-from src.core.prompt import choose, confirm
+from src.core.prompt import banner, choose, confirm
 from src.core.section_wizard import SectionWizard
 from src.core.section_workspace import SectionWorkspace
+from src.generators.pricing_engine import PricingEngine
 from src.services.section_service import SectionService
 
 class ProjectWorkspace:
@@ -26,7 +27,8 @@ class ProjectWorkspace:
 
         print("1. Informacje o projekcie")
         print("2. Zarządzaj sekcjami")
-        print("3. Usuń projekt")
+        print("3. Wycena")
+        print("4. Usuń projekt")
         print("0. Zamknij projekt")
 
         print()
@@ -172,6 +174,35 @@ class ProjectWorkspace:
         print(f"Sekcji      : {len(self.project.sections)}")
         print(f"Utworzono   : {self.project.created_at}")
         
+    def show_pricing(self):
+        """Orientacyjna wycena całego projektu (te same dane co API)."""
+
+        estimate = PricingEngine.estimate(self.project)
+        currency = estimate["currency"]
+
+        def cost_line(label, detail, cost):
+            return f"  {label:<14}{detail:>10}{cost:>11.2f} {currency}"
+
+        banner("Wycena")
+
+        print("Materiały:")
+        for item in estimate["materials"]:
+            print(cost_line(item["material"], f"{item['area']} m²", item["cost"]))
+
+        edging = estimate["edging"]
+        print("\nObrzeże:")
+        print(cost_line("", f"{edging['length']} m", edging["cost"]))
+
+        print("\nOkucia:")
+        for item in estimate["hardware"]:
+            print(cost_line(item["name"], f"{item['quantity']} szt.", item["cost"]))
+
+        print()
+        print("-" * 42)
+        print(cost_line("RAZEM", "", estimate["total"]))
+        print("-" * 42)
+        print("\nCeny orientacyjne (src/config.py).")
+
     def delete_project(self):
         """Usuwa cały projekt. Zwraca True, gdy projekt został usunięty."""
 
@@ -195,6 +226,8 @@ class ProjectWorkspace:
             elif choice == "2":
                 self.sections_menu()
             elif choice == "3":
+                self.show_pricing()
+            elif choice == "4":
                 if self.delete_project():
                     break
             elif choice == "0":

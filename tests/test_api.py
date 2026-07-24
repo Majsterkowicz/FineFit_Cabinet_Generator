@@ -126,3 +126,18 @@ def test_cutting_list_has_rows_and_summary(client):
     data = client.get(f"/api/projects/{project_id}/cutting-list").json()
     assert data["rows"]
     assert "total_parts" in data["summary"]
+
+
+def test_pricing_endpoint_returns_total(client):
+    project_id = _new_project(client)
+    section_id = _new_section(client, project_id)
+    client.post(
+        f"/api/projects/{project_id}/sections/{section_id}/cabinets",
+        json=dict(cabinet_type="dolna", width=600, height=720,
+                  depth=560, shelves=1, fronts=2),
+    )
+
+    data = client.get(f"/api/projects/{project_id}/pricing").json()
+    assert data["total"] > 0
+    assert data["currency"]
+    assert data["materials"] and data["hardware"]

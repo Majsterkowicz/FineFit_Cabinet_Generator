@@ -109,3 +109,16 @@ def test_cli_delete_cabinet_persists(manager, project, section, cabinet, feed_in
 
     reloaded = manager.load_project_by_id(project.project_id)
     assert reloaded.sections[0].cabinets == []
+
+
+# --- Wycena ---------------------------------------------------------------
+
+
+def test_cli_show_pricing(manager, project, section, cabinet, capsys):
+    ProjectWorkspace(project, manager).show_pricing()
+
+    output = capsys.readouterr().out
+    assert "Wycena" in output
+    assert "RAZEM" in output
+    from src import config
+    assert config.CURRENCY in output

@@ -629,7 +629,11 @@ async function renderCuttingList() {
     $("#tab-content").innerHTML = `<div class="panel"><div class="panel-body">
         <p class="muted">Wczytywanie...</p></div></div>`;
 
-    const data = await api("GET", `${projectUrl()}/cutting-list`);
+    // lista rozkroju i wycena są niezależne - pobieramy je równolegle
+    const [data, pricing] = await Promise.all([
+        api("GET", `${projectUrl()}/cutting-list`),
+        api("GET", `${projectUrl()}/pricing`)
+    ]);
 
     const rows = data.rows.map(row => `
         <tr>
@@ -672,9 +676,65 @@ async function renderCuttingList() {
                 </div>
             </div>
         </div>
+        ${pricingPanel(pricing)}
     `;
 
     $("#export-csv").addEventListener("click", () => exportCsv(data.rows));
+}
+
+/* Panel wyceny - materiał, obrzeże i okucia w jednej tabeli kosztów.
+   Ceny są orientacyjne (konfiguracja src/config.py). */
+function pricingPanel(pricing) {
+
+    const money = value => `${value.toFixed(2)} ${pricing.currency}`;
+
+    const line = (name, detail, unitPrice, cost) => `
+        <tr>
+            <td>${escapeHtml(name)}</td>
+            <td class="num">${detail}</td>
+            <td class="num">${unitPrice}</td>
+            <td class="num">${money(cost)}</td>
+        </tr>`;
+
+    const rows = [
+        ...pricing.materials.map(item => line(
+            item.material, `${item.area} m²`,
+            `${item.unit_price} /m²`, item.cost)),
+        line("Obrzeże", `${pricing.edging.length} m`,
+            `${pricing.edging.unit_price} /m`, pricing.edging.cost),
+        ...pricing.hardware.map(item => line(
+            item.name, `${item.quantity} szt.`,
+            `${item.unit_price} /szt.`, item.cost)),
+    ].join("");
+
+    return `
+        <div class="panel">
+            <div class="panel-head">
+                <h2>Wycena</h2>
+                <span class="badge">${money(pricing.total)}</span>
+            </div>
+            <div class="panel-body">
+                <div class="table-scroll">
+                    <table>
+                        <thead><tr>
+                            <th>Pozycja</th><th class="num">Ilość</th>
+                            <th class="num">Cena jedn.</th>
+                            <th class="num">Koszt</th>
+                        </tr></thead>
+                        <tbody>
+                            ${rows}
+                            <tr class="total-row">
+                                <td colspan="3"><strong>Razem</strong></td>
+                                <td class="num"><strong>${money(pricing.total)}</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="muted" style="margin-top:10px">
+                    Ceny orientacyjne. Konfiguracja w src/config.py.</p>
+            </div>
+        </div>
+    `;
 }
 
 function exportCsv(rows) {

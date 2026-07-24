@@ -50,3 +50,22 @@ BOARD_MATERIAL = "Płyta 18mm"
 BACK_MATERIAL = "HDF 3mm"
 
 FRONT_MATERIAL = "Front 18mm"
+
+# Wycena - ceny orientacyjne w PLN, przeznaczone do dostosowania.
+
+CURRENCY = "PLN"
+
+MATERIAL_PRICES = {          # cena za m²
+    BOARD_MATERIAL: 45.0,
+    BACK_MATERIAL: 20.0,
+    FRONT_MATERIAL: 90.0,
+}
+
+EDGING_PRICE = 3.0           # cena za metr obrzeża
+
+HINGES_PER_FRONT = 2
+
+HARDWARE_PRICES = {          # cena za sztukę
+    "hinge": 8.0,
+    "handle": 12.0,
+}

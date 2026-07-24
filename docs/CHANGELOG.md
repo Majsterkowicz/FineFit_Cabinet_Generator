@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.9.1
+- Usuwanie projektów (API, interfejs przeglądarkowy oraz CLI).
+- Domknięcie parzystości CLI z API: usuwanie i zmiana nazwy sekcji,
+  edycja oraz usuwanie szafek w interfejsie tekstowym.
+- Migracja starszych projektów: brakujące ID sekcji uzupełniane przy
+  wczytaniu (naprawia błąd usuwania sekcji bez ID).
+- Zestaw testów (pytest) dla usług, generatorów oraz API.
+- Nagłówki no-cache dla zasobów statycznych - przeglądarka nie serwuje
+  nieaktualnego JS/CSS.
+
 ## v0.9.0
 - REST API (FastAPI) oraz interfejs przeglądarkowy.
 - Rysunek elewacji sekcji (SVG) generowany z wymiarów szafek.
