@@ -698,7 +698,7 @@ async function renderCuttingList() {
     `;
 
     $("#export-csv").addEventListener("click", () => exportCsv(data.rows));
-    $("#edit-prices").addEventListener("click", () => pricesModal(pricing));
+    $("#edit-prices").addEventListener("click", pricesModal);
 }
 
 /* Panel wyceny - materiał, obrzeże i okucia w jednej tabeli kosztów.
@@ -1081,8 +1081,17 @@ async function saveSettings() {
     }
 }
 
-/* Ceny konkretnego projektu (migawka). Edycja nie dotyka innych projektów. */
-function pricesModal(pricing) {
+/* Ceny konkretnego projektu (migawka). Edycja nie dotyka innych projektów.
+   Pobieramy edytowalny cennik (/prices), a nie wynik wyceny (/pricing). */
+async function pricesModal() {
+
+    let pricing;
+    try {
+        pricing = await api("GET", `${projectUrl()}/prices`);
+    } catch (error) {
+        toast(error.message, true);
+        return;
+    }
 
     // nazwy materiałów odczytujemy po indeksie - bez przenoszenia ich przez DOM
     const names = Object.keys(pricing.material_prices);
