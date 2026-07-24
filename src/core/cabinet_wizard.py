@@ -1,5 +1,6 @@
 from src import config
-from src.core.prompt import ask_number, banner, choose, confirm_save
+from src.core.prompt import (
+    ask_cabinet_dimensions, banner, choose, confirm_save)
 from src.services.cabinet_service import CabinetService
 from src.services.id_generator import IdGenerator
 
@@ -51,24 +52,17 @@ class CabinetWizard:
         print("ENTER - przyjmij wartość domyślną")
         print()
 
-        width = ask_number("Szerokość [mm]", defaults["width"])
-        height = ask_number("Wysokość  [mm]", defaults["height"])
-        depth = ask_number("Głębokość [mm]", defaults["depth"])
-        shelves = ask_number(
-            "Liczba półek ", defaults["shelves"], minimum=0)
-        fronts = ask_number(
-            "Liczba frontów", defaults["fronts"], minimum=0)
+        dimensions = ask_cabinet_dimensions(
+            defaults["width"], defaults["height"], defaults["depth"],
+            defaults["shelves"], defaults["fronts"]
+        )
 
         try:
             cabinet = CabinetService.create(
                 project=self.project,
                 section=self.section,
                 cabinet_type=cabinet_type,
-                width=width,
-                height=height,
-                depth=depth,
-                shelves=shelves,
-                fronts=fronts
+                **dimensions
             )
 
         except ValueError as error:
@@ -83,9 +77,12 @@ class CabinetWizard:
 
         print(f"Numer szafki : {cabinet.cabinet_label}")
         print(f"Typ          : {cabinet.cabinet_type}")
-        print(f"Wymiary      : {width} x {height} x {depth}")
-        print(f"Półki        : {shelves}")
-        print(f"Fronty       : {fronts}")
+        print(
+            f"Wymiary      : {dimensions['width']} x "
+            f"{dimensions['height']} x {dimensions['depth']}"
+        )
+        print(f"Półki        : {dimensions['shelves']}")
+        print(f"Fronty       : {dimensions['fronts']}")
         print(f"Formatki     : {pieces} szt.")
         print()
         print("=" * 42)

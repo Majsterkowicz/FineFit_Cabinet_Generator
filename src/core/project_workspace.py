@@ -1,6 +1,7 @@
-from src.core.prompt import choose
+from src.core.prompt import choose, confirm
 from src.core.section_wizard import SectionWizard
 from src.core.section_workspace import SectionWorkspace
+from src.services.section_service import SectionService
 
 class ProjectWorkspace:
 
@@ -25,6 +26,7 @@ class ProjectWorkspace:
 
         print("1. Informacje o projekcie")
         print("2. Zarządzaj sekcjami")
+        print("3. Usuń projekt")
         print("0. Zamknij projekt")
 
         print()
@@ -100,26 +102,58 @@ class ProjectWorkspace:
                 f"{section.section_name}"
             )
 
-    def delete_section(self):
-        print("Usuwanie sekcji - funkcja w przygotowaniu.")
-
-    def rename_section(self):
-        print("Zmiana nazwy sekcji - funkcja w przygotowaniu.")
-
-    def open_section(self):
+    def _choose_section(self, title):
+        """Wybór sekcji z listy; None gdy brak sekcji lub anulowano."""
 
         if not self.project.sections:
             print("\nProjekt nie zawiera jeszcze sekcji.")
+            return None
+
+        return choose(
+            sorted(self.project.sections, key=lambda s: s.section_number),
+            label=lambda s: f"{s.section_number}. {s.section_name}",
+            title=title,
+            back="Anuluj"
+        )
+
+    def delete_section(self):
+
+        section = self._choose_section("Wybierz sekcję do usunięcia")
+
+        if section is None:
             return
 
-        section = choose(
-            sorted(
-                self.project.sections,
-                key=lambda s: s.section_number
-            ),
-            label=lambda s: f"{s.section_number}. {s.section_name}",
-            title="Wybierz sekcję"
-        )
+        if not confirm(
+                f"Usunąć sekcję „{section.section_name}” wraz z szafkami?"):
+            print("Anulowano.")
+            return
+
+        SectionService.delete(self.project, section.section_id)
+        self.project_manager.save_project(self.project)
+
+        print("\nSekcja została usunięta.")
+
+    def rename_section(self):
+
+        section = self._choose_section("Wybierz sekcję do zmiany nazwy")
+
+        if section is None:
+            return
+
+        new_name = input(f"Nowa nazwa [{section.section_name}]: ").strip()
+
+        if new_name == "":
+            print("Nazwa nie może być pusta. Anulowano.")
+            return
+
+        SectionService.rename(section, new_name)
+        self.project_manager.save_project(self.project)
+
+        print("\nNazwa sekcji została zmieniona.")
+
+    def open_section(self):
+
+        section = self._choose_section("Wybierz sekcję")
 
         if section is None:
             return
@@ -138,6 +172,19 @@ class ProjectWorkspace:
         print(f"Sekcji      : {len(self.project.sections)}")
         print(f"Utworzono   : {self.project.created_at}")
         
+    def delete_project(self):
+        """Usuwa cały projekt. Zwraca True, gdy projekt został usunięty."""
+
+        if not confirm(
+                f"Usunąć projekt „{self.project.project_name}” wraz z całą "
+                f"zawartością?"):
+            print("Anulowano.")
+            return False
+
+        self.project_manager.delete_project(self.project.project_id)
+        print("\nProjekt został usunięty.")
+        return True
+
     def run(self):
 
         while True:
@@ -147,6 +194,9 @@ class ProjectWorkspace:
                 self.show_project_info()
             elif choice == "2":
                 self.sections_menu()
+            elif choice == "3":
+                if self.delete_project():
+                    break
             elif choice == "0":
                 print("Zamykanie projektu...")
                 break

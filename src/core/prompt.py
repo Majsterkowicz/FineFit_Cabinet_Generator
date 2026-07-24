@@ -31,6 +31,49 @@ def confirm_save() -> bool:
         print("\nNieprawidłowy wybór. Naciśnij ENTER lub wpisz N.")
 
 
+def confirm(question: str, default: bool = False) -> bool:
+    """
+    Pytanie tak/nie. ENTER przyjmuje wartość domyślną.
+
+    Dla operacji nieodwracalnych (usuwanie) domyślną wartością jest False,
+    aby przypadkowy ENTER niczego nie skasował.
+    """
+
+    hint = "T/n" if default else "t/N"
+
+    while True:
+
+        choice = input(f"{question} [{hint}]: ").strip().lower()
+
+        if choice == "":
+            return default
+
+        if choice in ("t", "tak"):
+            return True
+
+        if choice in ("n", "nie"):
+            return False
+
+        print("Wpisz T (tak) lub N (nie).")
+
+
+def ask_cabinet_dimensions(width, height, depth, shelves, fronts) -> dict:
+    """
+    Pyta o wymiary szafki, przyjmując podane wartości jako domyślne.
+
+    Jedno źródło etykiet i ograniczeń dla tworzenia (wartości domyślne typu)
+    oraz edycji (obecne wartości szafki).
+    """
+
+    return {
+        "width": ask_number("Szerokość [mm]", width),
+        "height": ask_number("Wysokość  [mm]", height),
+        "depth": ask_number("Głębokość [mm]", depth),
+        "shelves": ask_number("Liczba półek ", shelves, minimum=0),
+        "fronts": ask_number("Liczba frontów", fronts, minimum=0),
+    }
+
+
 def choose(items, label, title="Wybierz", back="Powrót"):
     """
     Wyświetla ponumerowaną listę i zwraca wybrany element.

@@ -1,4 +1,7 @@
+from src import config
 from src.core.cabinet_wizard import CabinetWizard
+from src.core.prompt import ask_cabinet_dimensions, choose, confirm
+from src.services.cabinet_service import CabinetService
 
 
 class SectionWorkspace:
@@ -10,6 +13,15 @@ class SectionWorkspace:
         self.project_manager = project_manager
 
     def run(self):
+
+        actions = {
+            "1": self.show_section_info,
+            "2": self.show_cabinets,
+            "3": self.add_cabinet,
+            "4": self.edit_cabinet,
+            "5": self.delete_cabinet,
+            "6": self.show_parts,
+        }
 
         while True:
 
@@ -23,23 +35,26 @@ class SectionWorkspace:
             print("1. Informacje o sekcji")
             print("2. Lista szafek")
             print("3. Dodaj szafkę")
-            print("4. Lista formatek")
+            print("4. Edytuj szafkę")
+            print("5. Usuń szafkę")
+            print("6. Lista formatek")
             print("0. Powrót")
 
             choice = input("\nWybierz opcję: ")
 
-            if choice == "1":
-                self.show_section_info()
-            elif choice == "2":
-                self.show_cabinets()
-            elif choice == "3":
-                self.add_cabinet()
-            elif choice == "4":
-                self.show_parts()
-            elif choice == "0":
+            if choice == "0":
                 break
+
+            action = actions.get(choice)
+
+            if action:
+                action()
             else:
                 print("\nNiepoprawny wybór.")
+
+            # Pauza „ENTER - powrót” jest jedna, na poziomie pętli menu,
+            # zamiast powtarzana w każdej gałęzi każdej akcji.
+            input("\nENTER - powrót")
 
     def show_section_info(self):
         print("\n========================================")
@@ -50,8 +65,6 @@ class SectionWorkspace:
         print(f"Numer: {self.section.section_number}")
         print(f"Nazwa: {self.section.section_name}")
         print(f"Liczba szafek: {len(self.section.cabinets)}")
-
-        input("\nENTER - powrót")
 
     def show_cabinets(self):
         print("\n========================================")
@@ -68,7 +81,6 @@ class SectionWorkspace:
                     f"{cabinet.cabinet_label}   "
                     f"{cabinet.cabinet_type}"
                 )
-        input("\nENTER - powrót")
 
     def add_cabinet(self):
 
@@ -77,7 +89,6 @@ class SectionWorkspace:
         cabinet = wizard.run()
 
         if cabinet is None:
-            input("\nENTER - powrót")
             return
 
         self.section.add_cabinet(cabinet)
@@ -95,7 +106,86 @@ class SectionWorkspace:
         print()
         print("=" * 42)
 
-        input("\nENTER - powrót")
+    def _choose_cabinet(self, title):
+        """Wybór szafki z listy; None gdy brak szafek lub anulowano."""
+
+        if not self.section.cabinets:
+            print("\nSekcja nie zawiera jeszcze szafek.")
+            return None
+
+        return choose(
+            self.section.cabinets,
+            label=lambda c: (
+                f"{c.cabinet_label}. {c.cabinet_type}   "
+                f"{c.width}x{c.height}x{c.depth}"
+            ),
+            title=title,
+            back="Anuluj"
+        )
+
+    def edit_cabinet(self):
+
+        cabinet = self._choose_cabinet("Wybierz szafkę do edycji")
+
+        if cabinet is None:
+            return
+
+        cabinet_type = choose(
+            list(config.CABINET_TYPES),
+            label=lambda name: name,
+            title=f"Typ szafki (obecnie: {cabinet.cabinet_type})",
+            back="Anuluj"
+        )
+
+        if cabinet_type is None:
+            return
+
+        print("\nENTER - zachowaj obecną wartość\n")
+
+        dimensions = ask_cabinet_dimensions(
+            cabinet.width, cabinet.height, cabinet.depth,
+            cabinet.shelves, cabinet.fronts
+        )
+
+        try:
+            CabinetService.update(
+                project=self.project,
+                cabinet=cabinet,
+                cabinet_type=cabinet_type,
+                **dimensions
+            )
+
+        except ValueError as error:
+            print(f"\nNie można zaktualizować szafki: {error}")
+            return
+
+        self.project_manager.save_project(self.project)
+
+        print(
+            f"\nSzafka {cabinet.cabinet_label} zaktualizowana "
+            f"({len(cabinet.parts)} formatek)."
+        )
+
+    def delete_cabinet(self):
+
+        cabinet = self._choose_cabinet("Wybierz szafkę do usunięcia")
+
+        if cabinet is None:
+            return
+
+        if not confirm(f"Usunąć szafkę {cabinet.cabinet_label}?"):
+            print("Anulowano.")
+            return
+
+        CabinetService.delete(
+            self.project,
+            self.section,
+            cabinet.cabinet_id
+        )
+
+        self.project_manager.save_project(self.project)
+
+        print("\nSzafka została usunięta.")
 
     def show_parts(self):
 
@@ -105,7 +195,6 @@ class SectionWorkspace:
 
         if not self.section.cabinets:
             print("\nBrak szafek.")
-            input("\nENTER - powrót")
             return
 
         for cabinet in self.section.cabinets:
@@ -122,5 +211,3 @@ class SectionWorkspace:
                     f"{part.length:>7} x{part.width:>7}"
                     f"{part.quantity:>4} szt.  {part.material}"
                 )
-
-        input("\nENTER - powrót")
