@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.10.1
+- Arkusz produkcyjny (Drukuj / PDF): elewacje sekcji, lista rozkroju, BOM
+  oraz wycena na jednej drukowalnej stronie. Wydruk z przeglądarki, zapis
+  jako PDF, bez dodatkowych zależności.
+
 ## v0.10.0
 - PricingEngine - orientacyjna wycena projektu (materiały, obrzeże, okucia)
   w API, interfejsie przeglądarkowym oraz CLI.

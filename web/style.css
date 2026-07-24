@@ -303,11 +303,8 @@ code, .mono { font-family: ui-monospace, monospace; font-size: 12px; }
 
 .elevation svg { display: block; }
 
-.body-line { fill: none; stroke: var(--text); stroke-width: 1.5; }
-.front-face { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1; }
-.shelf-line { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 3; }
-.dim-text { fill: var(--muted); font-size: 10px; font-family: ui-monospace, monospace; }
-.cab-text { fill: var(--text); font-size: 11px; font-family: ui-monospace, monospace; }
+/* Kolory linii elewacji (.body-line/.front-face/...) są w samym SVG
+   (drawElevation → ELEVATION_STYLE), więc działają też w oknie druku. */
 
 /* --- Modal --- */
 

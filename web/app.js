@@ -264,9 +264,7 @@ function render() {
 
     const project = state.project;
 
-    const cabinets = project.sections.reduce(
-        (total, section) => total + section.cabinets.length, 0
-    );
+    const cabinets = countCabinets(project);
 
     $("#workspace").innerHTML = `
         <div class="panel">
@@ -283,6 +281,7 @@ function render() {
                         <button class="tab ${state.tab === "cutting" ? "active" : ""}"
                             data-tab="cutting">Lista rozkroju</button>
                     </div>
+                    <button class="small" id="print-sheet">Drukuj / PDF</button>
                     <button class="small danger" id="delete-project">
                         Usuń projekt</button>
                 </div>
@@ -309,6 +308,7 @@ function render() {
     });
 
     $("#delete-project").addEventListener("click", deleteProject);
+    $("#print-sheet").addEventListener("click", printProductionSheet);
 
     if (state.tab === "sections") renderSections();
     else renderCuttingList();
@@ -323,6 +323,12 @@ function countParts(project) {
     }
     return total;
 }
+
+const countCabinets = project => project.sections.reduce(
+    (total, section) => total + section.cabinets.length, 0);
+
+const countCabinetParts = cabinet => cabinet.parts.reduce(
+    (total, part) => total + part.quantity, 0);
 
 function renderSections() {
 
@@ -387,8 +393,7 @@ function bind(name, handler) {
 
 function cabinetCard(cabinet) {
 
-    const pieces = cabinet.parts.reduce(
-        (total, part) => total + part.quantity, 0);
+    const pieces = countCabinetParts(cabinet);
     const id = cabinet.cabinet_id;
 
     return `
@@ -489,8 +494,23 @@ function drawElevation(section) {
 
     return `<svg viewBox="0 0 ${canvasWidth} ${canvasHeight}"
         width="${canvasWidth}" height="${canvasHeight}"
-        xmlns="http://www.w3.org/2000/svg">${svg}</svg>`;
+        xmlns="http://www.w3.org/2000/svg">${ELEVATION_STYLE}${svg}</svg>`;
 }
+
+/* Styl elewacji zawarty w samym SVG - jedno źródło dla ekranu i druku.
+   var(--x, fallback): na ekranie kolory motywu, w oknie druku (bez motywu)
+   jasne wartości zapasowe. Dzięki temu nie ma kopii w style.css/PRINT_CSS. */
+const ELEVATION_STYLE = `<style>
+    .body-line { fill: none; stroke: var(--text, #14161b); stroke-width: 1.5; }
+    .front-face { fill: var(--accent-soft, #f0f0f0);
+        stroke: var(--accent, #14161b); stroke-width: 1; }
+    .shelf-line { stroke: var(--muted, #888); stroke-width: 1;
+        stroke-dasharray: 4 3; }
+    .dim-text { fill: var(--muted, #555); font-size: 10px;
+        font-family: ui-monospace, monospace; }
+    .cab-text { fill: var(--text, #14161b); font-size: 11px;
+        font-family: ui-monospace, monospace; }
+</style>`;
 
 /* -------------------------------------------------------------- modals --- */
 
@@ -624,6 +644,14 @@ function cabinetModal(sectionId, cabinetId) {
 
 /* -------------------------------------------------------- cutting list --- */
 
+/* Jeden wiersz listy rozkroju - wspólny dla widoku ekranu i arkusza druku. */
+const cuttingRow = row => `
+    <tr><td>${escapeHtml(row.part_name)}</td>
+        <td class="num">${row.length}</td><td class="num">${row.width}</td>
+        <td class="num">${row.thickness}</td><td class="num">${row.quantity}</td>
+        <td class="num">${row.area.toFixed(3)}</td>
+        <td>${escapeHtml(row.material)}</td></tr>`;
+
 async function renderCuttingList() {
 
     $("#tab-content").innerHTML = `<div class="panel"><div class="panel-body">
@@ -635,17 +663,7 @@ async function renderCuttingList() {
         api("GET", `${projectUrl()}/pricing`)
     ]);
 
-    const rows = data.rows.map(row => `
-        <tr>
-            <td>${escapeHtml(row.part_name)}</td>
-            <td class="num">${row.length}</td>
-            <td class="num">${row.width}</td>
-            <td class="num">${row.thickness}</td>
-            <td class="num">${row.quantity}</td>
-            <td class="num">${row.area.toFixed(3)}</td>
-            <td>${escapeHtml(row.material)}</td>
-        </tr>
-    `).join("");
+    const rows = data.rows.map(cuttingRow).join("");
 
     $("#tab-content").innerHTML = `
         <div class="panel">
@@ -759,6 +777,170 @@ function exportCsv(rows) {
     link.click();
     URL.revokeObjectURL(link.href);
 }
+
+/* --------------------------------------------------- production sheet --- */
+
+/* Arkusz produkcyjny: elewacje + lista rozkroju + BOM + wycena na jednej
+   drukowalnej stronie. Otwieramy dedykowany dokument (jasny motyw, własny
+   arkusz stylów) i uruchamiamy okno druku - użytkownik zapisuje jako PDF. */
+async function printProductionSheet() {
+
+    try {
+        // lista rozkroju i wycena są niezależne - pobieramy równolegle
+        const [cutting, pricing] = await Promise.all([
+            api("GET", `${projectUrl()}/cutting-list`),
+            api("GET", `${projectUrl()}/pricing`),
+        ]);
+
+        const html = productionSheetHtml({
+            project: state.project, cutting, pricing,
+        });
+
+        const printWindow = window.open("", "_blank");
+
+        if (!printWindow) {
+            toast("Zezwól na wyskakujące okna, aby wydrukować.", true);
+            return;
+        }
+
+        printWindow.document.write(html);
+        printWindow.document.close();
+
+    } catch (error) {
+        toast(error.message, true);
+    }
+}
+
+/* Czysta funkcja (dane -> HTML), aby układ dało się sprawdzić bez przeglądarki. */
+function productionSheetHtml({ project, cutting, pricing }) {
+
+    const date = new Date().toLocaleDateString("pl-PL");
+
+    const cabinetsCount = countCabinets(project);
+
+    const sections = [...project.sections]
+        .sort((a, b) => a.section_number - b.section_number)
+        .map(sheetSection).join("");
+
+    const cuttingRows = cutting.rows.map(cuttingRow).join("");
+
+    const bomRows = cutting.summary.materials.map(entry => `
+        <tr><td>${escapeHtml(entry.material)}</td>
+            <td class="num">${entry.quantity}</td>
+            <td class="num">${entry.area} m²</td></tr>`).join("");
+
+    const money = value => `${value.toFixed(2)} ${pricing.currency}`;
+
+    const priceRows = [
+        ...pricing.materials.map(item =>
+            priceRow(item.material, `${item.area} m²`, money(item.cost))),
+        priceRow("Obrzeże", `${pricing.edging.length} m`, money(pricing.edging.cost)),
+        ...pricing.hardware.map(item =>
+            priceRow(item.name, `${item.quantity} szt.`, money(item.cost))),
+    ].join("");
+
+    return `<!doctype html>
+<html lang="pl"><head><meta charset="utf-8">
+<title>Arkusz produkcyjny ${escapeHtml(project.project_id)}</title>
+<style>${PRINT_CSS}</style></head>
+<body onload="window.focus();window.print()">
+
+    <header class="sheet-head">
+        <h1>Arkusz produkcyjny</h1>
+        <div class="sheet-meta">
+            <div class="pid">${escapeHtml(project.project_id)}</div>
+            <div>${escapeHtml(project.project_name)}</div>
+            <div class="muted">${date}</div>
+        </div>
+    </header>
+
+    <p class="totals">Sekcje: ${project.sections.length} ·
+        Szafki: ${cabinetsCount} · Formatki: ${countParts(project)}</p>
+
+    ${sections || `<p class="muted">Projekt nie zawiera sekcji.</p>`}
+
+    <h2>Lista rozkroju</h2>
+    <table><thead><tr>
+        <th>Element</th><th class="num">Dł.</th><th class="num">Szer.</th>
+        <th class="num">Gr.</th><th class="num">Szt.</th><th class="num">m²</th>
+        <th>Materiał</th></tr></thead>
+        <tbody>${cuttingRows || emptyRow(7)}</tbody></table>
+
+    <h2>Zestawienie materiałów (BOM)</h2>
+    <table><thead><tr>
+        <th>Materiał</th><th class="num">Szt.</th><th class="num">Powierzchnia</th>
+        </tr></thead><tbody>${bomRows || emptyRow(3)}</tbody></table>
+    <p class="muted">Powierzchnia razem: ${cutting.summary.total_area} m² ·
+        Obrzeże: ${cutting.summary.edging_length} m</p>
+
+    <h2>Wycena</h2>
+    <table><thead><tr>
+        <th>Pozycja</th><th class="num">Ilość</th><th class="num">Koszt</th>
+        </tr></thead><tbody>${priceRows}
+        <tr class="total"><td colspan="2"><strong>Razem</strong></td>
+        <td class="num"><strong>${money(pricing.total)}</strong></td></tr>
+        </tbody></table>
+
+</body></html>`;
+}
+
+function sheetSection(section) {
+
+    const cabinets = section.cabinets.map(cabinet => `
+        <tr><td>${escapeHtml(cabinet.cabinet_label)}</td>
+            <td>${escapeHtml(cabinet.cabinet_type)}</td>
+            <td class="num">${cabinet.width}×${cabinet.height}×${cabinet.depth}</td>
+            <td class="num">${cabinet.shelves}</td>
+            <td class="num">${cabinet.fronts}</td>
+            <td class="num">${countCabinetParts(cabinet)}</td></tr>`).join("");
+
+    return `<div class="section">
+        <h2>${section.section_number}. ${escapeHtml(section.section_name)}</h2>
+        ${section.cabinets.length
+            ? `<div class="elevation">${drawElevation(section)}</div>` : ""}
+        <table><thead><tr>
+            <th>Nr</th><th>Typ</th><th class="num">Wymiary [mm]</th>
+            <th class="num">Półki</th><th class="num">Fronty</th>
+            <th class="num">Formatki</th></tr></thead>
+            <tbody>${cabinets || emptyRow(6)}</tbody></table>
+    </div>`;
+}
+
+const priceRow = (name, detail, cost) => `
+    <tr><td>${escapeHtml(name)}</td>
+        <td class="num">${detail}</td><td class="num">${cost}</td></tr>`;
+
+const emptyRow = cols =>
+    `<tr><td colspan="${cols}" class="muted">Brak danych.</td></tr>`;
+
+/* Jasny, samodzielny arkusz stylów druku - nie korzysta ze style.css. */
+const PRINT_CSS = `
+    * { box-sizing: border-box; }
+    body { font: 12px/1.4 -apple-system, Arial, sans-serif; color: #000;
+        margin: 0; padding: 0; }
+    h1 { font-size: 20px; margin: 0; }
+    h2 { font-size: 14px; margin: 16px 0 6px; border-bottom: 1px solid #000;
+        padding-bottom: 2px; }
+    .sheet-head { display: flex; justify-content: space-between;
+        align-items: flex-start; border-bottom: 2px solid #000;
+        padding-bottom: 8px; }
+    .sheet-meta { text-align: right; }
+    .sheet-meta .pid { font-weight: 700; font-family: monospace; }
+    .muted { color: #555; }
+    .totals { margin: 8px 0 4px; color: #333; }
+    .section { page-break-inside: avoid; margin-top: 10px; }
+    .elevation { text-align: center; margin: 6px 0; }
+    svg { max-width: 100%; height: auto; }
+    table { width: 100%; border-collapse: collapse; margin: 4px 0; }
+    th, td { border: 1px solid #999; padding: 3px 6px; text-align: left; }
+    th { background: #eee; font-weight: 600; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr { page-break-inside: avoid; }
+    tr.total td { border-top: 2px solid #000; }
+    thead { display: table-header-group; }
+    /* kolory linii elewacji niesie samo SVG (ELEVATION_STYLE) */
+    @page { size: A4; margin: 14mm; }
+`;
 
 /* ----------------------------------------------------------- settings --- */
 
