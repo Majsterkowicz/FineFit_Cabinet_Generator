@@ -37,6 +37,10 @@ async function api(method, url, body) {
 
 const $ = selector => document.querySelector(selector);
 
+/* Widok powitalny (pusty workspace) zapamiętany z index.html - jedno źródło
+   znaczników, przywracane po zamknięciu/usunięciu aktywnego projektu. */
+const EMPTY_WORKSPACE = $("#workspace").innerHTML;
+
 /* Adresy i wyszukiwanie obiektów w bieżącym projekcie.
    cabinet_id jest unikalne w projekcie, więc sekcję odnajdujemy sami
    zamiast przenosić ją przez atrybuty DOM. */
@@ -226,11 +230,37 @@ $("#new-project").addEventListener("click", () => textModal({
     }
 }));
 
+/* Usuwa aktywny projekt. Nie korzystamy z confirmDelete, bo ono nie czyści
+   zaznaczenia - po usunięciu wracamy do widoku powitalnego przez
+   setProject(null). */
+async function deleteProject() {
+
+    const project = state.project;
+
+    if (!confirm(
+        `Usunąć projekt „${project.project_name}" wraz z całą zawartością?`
+    )) return;
+
+    try {
+        await api("DELETE", `/api/projects/${project.project_id}`);
+
+        await loadProjects();
+        setProject(null);
+        toast("Projekt usunięty");
+
+    } catch (error) {
+        toast(error.message, true);
+    }
+}
+
 /* --------------------------------------------------------------- views --- */
 
 function render() {
 
-    if (!state.project) return;
+    if (!state.project) {
+        $("#workspace").innerHTML = EMPTY_WORKSPACE;
+        return;
+    }
 
     const project = state.project;
 
@@ -246,11 +276,15 @@ function render() {
                     <p class="muted mono">${project.project_id} ·
                         utworzono ${escapeHtml(project.created_at)}</p>
                 </div>
-                <div class="tabs">
-                    <button class="tab ${state.tab === "sections" ? "active" : ""}"
-                        data-tab="sections">Sekcje i szafki</button>
-                    <button class="tab ${state.tab === "cutting" ? "active" : ""}"
-                        data-tab="cutting">Lista rozkroju</button>
+                <div class="row">
+                    <div class="tabs">
+                        <button class="tab ${state.tab === "sections" ? "active" : ""}"
+                            data-tab="sections">Sekcje i szafki</button>
+                        <button class="tab ${state.tab === "cutting" ? "active" : ""}"
+                            data-tab="cutting">Lista rozkroju</button>
+                    </div>
+                    <button class="small danger" id="delete-project">
+                        Usuń projekt</button>
                 </div>
             </div>
             <div class="panel-body">
@@ -273,6 +307,8 @@ function render() {
             render();
         });
     });
+
+    $("#delete-project").addEventListener("click", deleteProject);
 
     if (state.tab === "sections") renderSections();
     else renderCuttingList();

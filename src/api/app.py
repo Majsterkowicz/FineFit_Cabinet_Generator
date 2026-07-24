@@ -104,6 +104,14 @@ def get_project(project_id: str):
     return project_manager.load_project_by_id(project_id).to_dict()
 
 
+@app.delete("/api/projects/{project_id}")
+def delete_project(project_id: str):
+
+    project_manager.delete_project(project_id)
+
+    return {"deleted": project_id}
+
+
 # --- Sekcje ---------------------------------------------------------------
 
 

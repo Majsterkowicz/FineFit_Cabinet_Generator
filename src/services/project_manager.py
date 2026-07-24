@@ -1,6 +1,7 @@
 from pathlib import Path
 import json
 import os
+import shutil
 import tempfile
 
 from src import config
@@ -79,6 +80,20 @@ class ProjectManager:
         self.save_project(project)
 
         return project
+
+    def delete_project(self, project_id: str):
+        """
+        Usuwa folder projektu wraz z całą zawartością.
+
+        find_project_folder zgłasza LookupError, gdy projekt nie istnieje -
+        API tłumaczy to na kod 404.
+        """
+
+        project_folder = self.find_project_folder(project_id)
+
+        shutil.rmtree(project_folder)
+
+        return project_id
 
     def find_project_folder(self, project_id: str):
         """
