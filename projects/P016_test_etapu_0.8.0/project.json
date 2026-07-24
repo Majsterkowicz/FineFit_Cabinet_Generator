@@ -4,10 +4,14 @@
     "created_at": "2026-07-22 16:58:41",
     "sections": [
         {
+            "section_id": "P016-S001",
+            "section_number": 0,
             "section_name": "Sekcja 1a",
             "cabinets": []
         },
         {
+            "section_id": "P016-S002",
+            "section_number": 0,
             "section_name": "Sekcja 1b",
             "cabinets": []
         }

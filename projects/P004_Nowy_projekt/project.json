@@ -4,19 +4,13 @@
     "created_at": "2026-07-22 10:44:00",
     "sections": [
         {
-            "section_id": "",
-            "section_number": 1,
-            "section_name": "Sekcja 1",
-            "cabinets": []
-        },
-        {
             "section_id": "P004-S001",
-            "section_number": 2,
+            "section_number": 1,
             "section_name": "kuchnia",
             "cabinets": [
                 {
                     "cabinet_id": "P004-C001",
-                    "cabinet_label": "2.1",
+                    "cabinet_label": "1.1",
                     "cabinet_type": "gorna",
                     "width": 600,
                     "height": 520,
@@ -26,7 +20,7 @@
                     "parts": [
                         {
                             "part_id": "P004-P016",
-                            "part_label": "2.1.1",
+                            "part_label": "1.1.1",
                             "part_name": "Bok",
                             "part_type": "bok",
                             "length": 520,
@@ -41,7 +35,7 @@
                         },
                         {
                             "part_id": "P004-P017",
-                            "part_label": "2.1.2",
+                            "part_label": "1.1.2",
                             "part_name": "Wieniec",
                             "part_type": "wieniec",
                             "length": 564,
@@ -56,7 +50,7 @@
                         },
                         {
                             "part_id": "P004-P018",
-                            "part_label": "2.1.3",
+                            "part_label": "1.1.3",
                             "part_name": "Półka",
                             "part_type": "polka",
                             "length": 564,
@@ -71,7 +65,7 @@
                         },
                         {
                             "part_id": "P004-P019",
-                            "part_label": "2.1.4",
+                            "part_label": "1.1.4",
                             "part_name": "Plecy",
                             "part_type": "plecy",
                             "length": 520,
@@ -86,7 +80,7 @@
                         },
                         {
                             "part_id": "P004-P020",
-                            "part_label": "2.1.5",
+                            "part_label": "1.1.5",
                             "part_name": "Front",
                             "part_type": "front",
                             "length": 520,
@@ -105,12 +99,12 @@
         },
         {
             "section_id": "P004-S002",
-            "section_number": 3,
+            "section_number": 2,
             "section_name": "dupa",
             "cabinets": [
                 {
                     "cabinet_id": "P004-C002",
-                    "cabinet_label": "3.1",
+                    "cabinet_label": "2.1",
                     "cabinet_type": "dolna",
                     "width": 500,
                     "height": 720,
@@ -120,7 +114,7 @@
                     "parts": [
                         {
                             "part_id": "P004-P026",
-                            "part_label": "3.1.1",
+                            "part_label": "2.1.1",
                             "part_name": "Bok",
                             "part_type": "bok",
                             "length": 720,
@@ -135,7 +129,7 @@
                         },
                         {
                             "part_id": "P004-P027",
-                            "part_label": "3.1.2",
+                            "part_label": "2.1.2",
                             "part_name": "Wieniec",
                             "part_type": "wieniec",
                             "length": 464,
@@ -150,7 +144,7 @@
                         },
                         {
                             "part_id": "P004-P028",
-                            "part_label": "3.1.3",
+                            "part_label": "2.1.3",
                             "part_name": "Półka",
                             "part_type": "polka",
                             "length": 464,
@@ -165,7 +159,7 @@
                         },
                         {
                             "part_id": "P004-P029",
-                            "part_label": "3.1.4",
+                            "part_label": "2.1.4",
                             "part_name": "Plecy",
                             "part_type": "plecy",
                             "length": 720,
@@ -180,7 +174,7 @@
                         },
                         {
                             "part_id": "P004-P030",
-                            "part_label": "3.1.5",
+                            "part_label": "2.1.5",
                             "part_name": "Front",
                             "part_type": "front",
                             "length": 720,
@@ -197,7 +191,7 @@
                 },
                 {
                     "cabinet_id": "P004-C003",
-                    "cabinet_label": "3.2",
+                    "cabinet_label": "2.2",
                     "cabinet_type": "slupek",
                     "width": 600,
                     "height": 2000,
@@ -207,7 +201,7 @@
                     "parts": [
                         {
                             "part_id": "P004-P031",
-                            "part_label": "3.2.1",
+                            "part_label": "2.2.1",
                             "part_name": "Bok",
                             "part_type": "bok",
                             "length": 2000,
@@ -222,7 +216,7 @@
                         },
                         {
                             "part_id": "P004-P032",
-                            "part_label": "3.2.2",
+                            "part_label": "2.2.2",
                             "part_name": "Wieniec",
                             "part_type": "wieniec",
                             "length": 564,
@@ -237,7 +231,7 @@
                         },
                         {
                             "part_id": "P004-P033",
-                            "part_label": "3.2.3",
+                            "part_label": "2.2.3",
                             "part_name": "Półka",
                             "part_type": "polka",
                             "length": 564,
@@ -252,7 +246,7 @@
                         },
                         {
                             "part_id": "P004-P034",
-                            "part_label": "3.2.4",
+                            "part_label": "2.2.4",
                             "part_name": "Plecy",
                             "part_type": "plecy",
                             "length": 2000,
@@ -267,7 +261,7 @@
                         },
                         {
                             "part_id": "P004-P035",
-                            "part_label": "3.2.5",
+                            "part_label": "2.2.5",
                             "part_name": "Front",
                             "part_type": "front",
                             "length": 2000,

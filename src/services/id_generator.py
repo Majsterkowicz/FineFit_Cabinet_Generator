@@ -43,6 +43,27 @@ class IdGenerator:
         return f"{project.project_id}-S{number:03d}"
 
     @staticmethod
+    def backfill_section_ids(project) -> bool:
+        """
+        Uzupełnia brakujące ID sekcji w projektach z wcześniejszych wersji,
+        w których sekcje nie miały jeszcze identyfikatorów systemowych.
+
+        Bez ID sekcji nie da się zaadresować (zmiana nazwy, usunięcie).
+        ID nadawane są pojedynczo, więc każde kolejne uwzględnia już
+        przydzielone i nie powstają duplikaty. Zwraca True, gdy cokolwiek
+        uzupełniono.
+        """
+
+        changed = False
+
+        for section in project.sections:
+            if not section.section_id:
+                section.section_id = IdGenerator.generate_section_id(project)
+                changed = True
+
+        return changed
+
+    @staticmethod
     def generate_section_number(project) -> int:
 
         if not project.sections:

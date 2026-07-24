@@ -6,6 +6,7 @@ import tempfile
 
 from src import config
 from src.models.project import Project
+from src.services.id_generator import IdGenerator
 
 
 class ProjectManager:
@@ -117,7 +118,14 @@ class ProjectManager:
         with open(json_path, "r", encoding="utf-8") as file:
             data = json.load(file)
 
-        return Project.from_dict(data)
+        project = Project.from_dict(data)
+
+        # Projekty z wcześniejszych wersji mogą mieć sekcje bez ID -
+        # uzupełniamy je raz przy wczytaniu, aby dało się je adresować.
+        if IdGenerator.backfill_section_ids(project):
+            self.save_project(project)
+
+        return project
 
     def load_project_by_id(self, project_id: str):
 
