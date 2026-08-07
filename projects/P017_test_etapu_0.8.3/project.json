@@ -5,21 +5,35 @@
     "sections": [
         {
             "section_id": "P017-S001",
-            "section_number": "1",
+            "section_number": 1,
             "section_name": "Sekcja",
             "cabinets": []
         },
         {
             "section_id": "P017-S002",
-            "section_number": "1",
+            "section_number": 1,
             "section_name": "Sekcja",
             "cabinets": []
         },
         {
             "section_id": "P017-S003",
-            "section_number": "2",
+            "section_number": 2,
             "section_name": "Ściana",
             "cabinets": []
         }
-    ]
+    ],
+    "pricing": {
+        "currency": "PLN",
+        "material_prices": {
+            "Płyta 18mm": 45.0,
+            "HDF 3mm": 20.0,
+            "Front 18mm": 90.0
+        },
+        "edging_price": 3.0,
+        "hinges_per_front": 2,
+        "hardware_prices": {
+            "hinge": 8.0,
+            "handle": 12.0
+        }
+    }
 }

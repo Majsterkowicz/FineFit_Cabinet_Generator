@@ -1,0 +1,60 @@
+{
+    "construction": {
+        "board_thickness": 18,
+        "back_thickness": 3,
+        "shelf_setback": 5,
+        "front_gap": 4,
+        "edge_thickness": 1
+    },
+    "materials": {
+        "board": {
+            "name": "Płyta 18mm",
+            "price": 45
+        },
+        "back": {
+            "name": "HDF 3mm",
+            "price": 20
+        },
+        "front": {
+            "name": "Front 18mm",
+            "price": 90
+        }
+    },
+    "edging_price": 3,
+    "hardware": {
+        "hinges_per_front": 2,
+        "hinge_price": 8,
+        "handle_price": 12
+    },
+    "currency": "PLN",
+    "cabinet_types": {
+        "dolna": {
+            "width": 600,
+            "height": 720,
+            "depth": 560,
+            "shelves": 1,
+            "fronts": 2
+        },
+        "gorna": {
+            "width": 600,
+            "height": 720,
+            "depth": 300,
+            "shelves": 2,
+            "fronts": 2
+        },
+        "slupek": {
+            "width": 600,
+            "height": 2000,
+            "depth": 560,
+            "shelves": 4,
+            "fronts": 2
+        },
+        "inna": {
+            "width": 600,
+            "height": 720,
+            "depth": 560,
+            "shelves": 1,
+            "fronts": 1
+        }
+    }
+}
