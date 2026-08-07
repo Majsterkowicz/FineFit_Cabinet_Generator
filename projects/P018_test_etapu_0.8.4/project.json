@@ -5,13 +5,13 @@
     "sections": [
         {
             "section_id": "P018-S001",
-            "section_number": "1",
+            "section_number": 1,
             "section_name": "Sciana",
             "cabinets": []
         },
         {
             "section_id": "P018-S002",
-            "section_number": "2",
+            "section_number": 2,
             "section_name": "Okno",
             "cabinets": []
         },
@@ -27,5 +27,19 @@
             "section_name": "Sciana",
             "cabinets": []
         }
-    ]
+    ],
+    "pricing": {
+        "currency": "PLN",
+        "material_prices": {
+            "Płyta 18mm": 45,
+            "HDF 3mm": 20,
+            "Front 18mm": 90
+        },
+        "edging_price": 3,
+        "hinges_per_front": 2,
+        "hardware_prices": {
+            "hinge": 8,
+            "handle": 12
+        }
+    }
 }

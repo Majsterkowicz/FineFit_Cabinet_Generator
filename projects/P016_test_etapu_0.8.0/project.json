@@ -15,5 +15,19 @@
             "section_name": "Sekcja 1b",
             "cabinets": []
         }
-    ]
+    ],
+    "pricing": {
+        "currency": "PLN",
+        "material_prices": {
+            "Płyta 18mm": 45,
+            "HDF 3mm": 20,
+            "Front 18mm": 90
+        },
+        "edging_price": 3,
+        "hinges_per_front": 2,
+        "hardware_prices": {
+            "hinge": 8,
+            "handle": 12
+        }
+    }
 }
